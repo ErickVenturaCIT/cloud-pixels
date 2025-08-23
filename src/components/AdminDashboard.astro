@@ -334,6 +334,14 @@ async function handleCreateProposal(form) {
             document.getElementById('entregablesContainer').innerHTML = '';
             addDeliverable(); // Agregar un campo vacío
             
+            // Refrescar lista de propuestas si está visible
+            if (window.refreshProposals) {
+                setTimeout(() => {
+                    window.refreshProposals();
+                    showLog('🔄 Lista de propuestas actualizada', 'info');
+                }, 1000);
+            }
+            
             // Countdown y redirección
             let countdown = 3;
             const countdownElement = document.querySelector('.countdown');
@@ -393,9 +401,13 @@ async function handleUpdateProposal(form) {
             // Resetear modo edición
             setFormMode('create');
             
-            // Recargar lista si está visible
-            showTab('list');
-            setTimeout(() => location.reload(), 1000);
+            // Refrescar lista de propuestas si está visible
+            if (window.refreshProposals) {
+                setTimeout(() => {
+                    window.refreshProposals();
+                    showLog('🔄 Lista de propuestas actualizada', 'info');
+                }, 1000);
+            }
         }
     } catch (error) {
         showLog(`❌ Error: ${error.message}`, 'error');
@@ -476,10 +488,17 @@ async function previewProposal(proposalId) {
 async function deleteProposal(proposalId) {
     if (confirm('¿Estás seguro de que quieres eliminar esta propuesta? Esta acción no se puede deshacer.')) {
         try {
-            await window.PropuestasService.deleteProposal(proposalId);
-            showLog('✅ Propuesta eliminada exitosamente', 'success');
-            showSuccess('Propuesta eliminada exitosamente');
-            setTimeout(() => location.reload(), 1000);
+                    await window.PropuestasService.deleteProposal(proposalId);
+        showLog('✅ Propuesta eliminada exitosamente', 'success');
+        showSuccess('Propuesta eliminada exitosamente');
+        
+        // Refrescar lista de propuestas si está visible
+        if (window.refreshProposals) {
+            setTimeout(() => {
+                window.refreshProposals();
+                showLog('🔄 Lista de propuestas actualizada', 'info');
+            }, 1000);
+        }
         } catch (error) {
             console.error('Error eliminando propuesta:', error);
             showError('Error eliminando la propuesta');
