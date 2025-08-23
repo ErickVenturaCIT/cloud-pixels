@@ -290,11 +290,8 @@ export async function handleUpdateProposal(form, db) {
         showSuccess(`¡Propuesta actualizada! Código: ${currentEditingProposal.codigo_propuesta}`);
         showProposalLink(proposalUrl, currentEditingProposal.codigo_propuesta);
         
-        // Volver al modo creación y recargar lista
+        // Volver al modo creación (la lista se actualizará al cambiar de pestaña)
         setFormMode('create');
-        if (window.loadProposalsList) {
-            await window.loadProposalsList();
-        }
         
         setTimeout(() => {
             const successMessage = document.getElementById('successMessage');

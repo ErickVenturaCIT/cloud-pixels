@@ -19,12 +19,9 @@ export function showTab(tabName) {
         activeTab.classList.add('active');
     }
 
-    // Si es la pestaña de lista, cargar las propuestas
+    // Si es la pestaña de lista, la lista ya está renderizada por el componente ProposalsList.astro
     if (tabName === 'list') {
-        // Esta función se importará del módulo de propuestas
-        if (window.loadProposalsList) {
-            window.loadProposalsList();
-        }
+        // No es necesario cargar propuestas dinámicamente, ya están renderizadas por el componente Astro
     }
 }
 

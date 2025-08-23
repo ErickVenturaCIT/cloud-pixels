@@ -1,0 +1,435 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/proposal-page.css";
+---
+
+<Layout title="Propuesta - Cloud Pixels">
+    <div id="loading-state" class="loading-state">
+        <p>Cargando propuesta...</p>
+    </div>
+
+    <div id="error-state" class="error-state" style="display: none;">
+        <p>No se pudo cargar la propuesta. Verifica el código proporcionado.</p>
+    </div>
+
+    <div id="proposal-content" style="display: none;">
+        <header>
+            <nav>
+                <div class="brand-logo">
+                    <a href="#home">
+                        <img src="Cloud Pixels.png" alt="Logo Cloud Pixels">
+                    </a>
+                </div>
+                <ul>
+                    <li><a href="#resumen">Resumen</a></li>
+                    <li><a href="#sobre">Nosotros</a></li>
+                    <li><a href="#servicios">Servicios</a></li>
+                    <li><a href="#objetivos">Objetivos</a></li>
+                    <li><a href="#entregables">Entregables</a></li>
+                    <li><a href="#proceso">Proceso</a></li>
+                    <li><a href="#propuesta">Propuesta Económica</a></li>
+                    <li><a href="#horarios">Horarios</a></li>
+                    <li><a href="#terminos">Términos</a></li>
+                    <li><a href="#aceptacion">Aceptar</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Hero: información del proyecto -->
+        <section class="hero" id="home">
+            <h1 id="project-name"></h1>
+            
+            <p id="client-info">
+                <strong>Para:</strong> <span id="client-name"></span> — <span id="client-company"></span>
+            </p>
+            
+            <p id="proposal-date">
+                <strong>Fecha:</strong> <span id="proposal-date-text"></span>
+            </p>
+            
+            <p class="hero-intro" id="hero-intro-text">
+                Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.
+            </p>
+            <a class="cta" href="#resumen">Explorar</a>
+        </section>
+
+        <!-- Resumen Ejecutivo -->
+        <section class="section light" id="resumen">
+            <h2 class="section-title">Resumen Ejecutivo</h2>
+            <p id="executive-summary">
+                Esta sección ofrece una visión general del proyecto y debe adaptarse a cada cliente. Describe brevemente los retos que enfrenta la empresa y cómo tus servicios ayudarán a resolverlos.
+            </p>
+        </section>
+
+        <!-- ¿Por qué Cloud Pixels? -->
+        <section class="section alt" id="sobre">
+            <h2 class="section-title">¿Por qué Cloud&nbsp;Pixels?</h2>
+            <p id="company-description">
+                Con más de 9&nbsp;años de experiencia, Cloud Pixels es un equipo global con oficinas en Honduras, Estados&nbsp;Unidos, Estonia y Panamá. Combinamos talento de diseño y desarrollo de todo el mundo para crear soluciones digitales excepcionales y escalables.
+            </p>
+        </section>
+
+        <!-- Servicios -->
+        <section class="section light" id="servicios">
+            <h2 class="section-title">Servicios</h2>
+            <div class="services-grid" id="services-grid">
+                <!-- Services will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Objetivos y alcance -->
+        <section class="section alt" id="objetivos">
+            <h2 class="section-title">Objetivos &amp; Alcance</h2>
+            <p id="objectives-scope">
+                Describe en esta sección los objetivos específicos del proyecto y el alcance del trabajo. Por ejemplo, puedes mencionar la mejora de la presencia digital, el aumento de conversiones o la expansión del alcance de la marca.
+            </p>
+        </section>
+
+        <!-- Entregables -->
+        <section class="section light" id="entregables">
+            <h2 class="section-title">Entregables</h2>
+            <ul class="deliverables-list" id="deliverables-list">
+                <!-- Deliverables will be populated by JavaScript -->
+            </ul>
+        </section>
+
+        <!-- Proceso & Timeline -->
+        <section class="section alt" id="proceso">
+            <h2 class="section-title">Proceso &amp; Timeline</h2>
+            <div class="timeline" id="process-timeline">
+                <!-- Timeline will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Propuesta económica -->
+        <section class="section light" id="propuesta">
+            <h2 class="section-title">Propuesta Económica</h2>
+            <p>La inversión total para este proyecto es:</p>
+            <div class="pricing-grid">
+                <div class="pricing-card featured">
+                    <h3>Valor del Proyecto</h3>
+                    <div class="price" id="project-price">$X,XXX</div>
+                    <ul id="payment-terms">
+                        <!-- Payment terms will be populated by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Horarios de atención y canales de comunicación -->
+        <section class="section alt" id="horarios">
+            <h2 class="section-title">Horarios de Atención &amp; Canales de Comunicación</h2>
+            <p id="business-hours">
+                Nuestro equipo está disponible de lunes a viernes de 9:00&nbsp;a.m. a 6:00&nbsp;p.m. (aplican días feriados). Para consultas fuera de este horario, responderemos al siguiente día laboral.
+            </p>
+            <p>Nos puedes contactar a través de los siguientes canales:</p>
+            <ul class="contact-list" id="contact-info">
+                <li><strong>Email:</strong> <span id="contact-email">tu.correo@cloudpixels.com</span></li>
+                <li><strong>WhatsApp:</strong> <span id="contact-whatsapp">+XX&nbsp;XXX&nbsp;XXX&nbsp;XXXX</span></li>
+            </ul>
+        </section>
+
+        <!-- Términos y condiciones -->
+        <section class="section light" id="terminos">
+            <h2 class="section-title">Términos &amp; Condiciones</h2>
+            <div class="terms">
+                <p id="terms-conditions">
+                    Al aceptar esta propuesta, el cliente se compromete a abonar un anticipo del 50% para iniciar el proyecto. El saldo restante se pagará al finalizar, antes del lanzamiento.
+                </p>
+                <p id="terms-validity">
+                    Esta propuesta es válida durante 30&nbsp;días a partir de la fecha de emisión. Los servicios de mantenimiento, hosting o funcionalidades adicionales no mencionados aquí se considerarán extras opcionales.
+                </p>
+            </div>
+        </section>
+
+        <!-- Aceptación y próximos pasos -->
+        <section class="section alt accept-section" id="aceptacion">
+            <h2 class="section-title">Aceptación &amp; Próximos Pasos</h2>
+            <p id="acceptance-text">
+                ¿Listo para comenzar? Haz clic en el botón de abajo para aceptar la propuesta. Podrás firmar digitalmente y realizar el pago inicial.
+            </p>
+            <a class="cta-accept" href="#">Aceptar Propuesta</a>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>© 2025 Cloud Pixels. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Función para obtener parámetros de URL
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Función para cargar datos de la propuesta
+        async function loadProposal(code) {
+            try {
+                const response = await fetch(`/api/propuestas/codigo/${code}`);
+                
+                if (!response.ok) {
+                    throw new Error('Propuesta no encontrada');
+                }
+                
+                const propuesta = await response.json();
+                populateProposal(propuesta);
+                
+                // Ocultar loading y mostrar contenido
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('proposal-content').style.display = 'block';
+                
+                // Actualizar título
+                document.title = `Propuesta - ${propuesta.nombre_proyecto}`;
+                
+            } catch (error) {
+                console.error('Error cargando propuesta:', error);
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('error-state').style.display = 'block';
+            }
+        }
+
+        // Función para poblar el contenido de la propuesta
+        function populateProposal(propuesta) {
+            // Hero section
+            document.getElementById('project-name').textContent = propuesta.nombre_proyecto || 'Proyecto';
+            document.getElementById('client-name').textContent = propuesta.cliente_nombre || 'Cliente';
+            document.getElementById('client-company').textContent = propuesta.cliente_empresa || 'Empresa';
+            document.getElementById('proposal-date-text').textContent = 
+                propuesta.fecha_propuesta ? new Date(propuesta.fecha_propuesta).toLocaleDateString('es-ES') : 'DD/MM/AAAA';
+            
+            if (propuesta.texto_introductorio) {
+                document.getElementById('hero-intro-text').textContent = propuesta.texto_introductorio;
+            }
+
+            // Content sections
+            if (propuesta.resumen_ejecutivo) {
+                document.getElementById('executive-summary').textContent = propuesta.resumen_ejecutivo;
+            }
+            
+            if (propuesta.descripcion_empresa) {
+                document.getElementById('company-description').textContent = propuesta.descripcion_empresa;
+            }
+            
+            if (propuesta.objetivos_alcance) {
+                document.getElementById('objectives-scope').textContent = propuesta.objetivos_alcance;
+            }
+
+            // Services
+            populateServices(propuesta.servicios_seleccionados);
+            
+            // Deliverables
+            populateDeliverables(propuesta.entregables);
+            
+            // Timeline
+            populateTimeline(propuesta.proceso_timeline);
+            
+            // Pricing
+            document.getElementById('project-price').textContent = propuesta.valor_proyecto || '$X,XXX';
+            populatePaymentTerms(propuesta.terminos_pago);
+            
+            // Contact info
+            if (propuesta.horarios_atencion) {
+                document.getElementById('business-hours').textContent = propuesta.horarios_atencion;
+            }
+            
+            if (propuesta.contacto_email) {
+                document.getElementById('contact-email').textContent = propuesta.contacto_email;
+            }
+            
+            if (propuesta.contacto_whatsapp) {
+                document.getElementById('contact-whatsapp').textContent = propuesta.contacto_whatsapp;
+            }
+
+            // Terms
+            if (propuesta.terminos_condiciones) {
+                document.getElementById('terms-conditions').textContent = propuesta.terminos_condiciones;
+            }
+            
+            if (propuesta.terminos_validez) {
+                document.getElementById('terms-validity').textContent = propuesta.terminos_validez;
+            }
+            
+            if (propuesta.texto_aceptacion) {
+                document.getElementById('acceptance-text').textContent = propuesta.texto_aceptacion;
+            }
+        }
+
+        // Funciones auxiliares para poblar secciones específicas
+        function populateServices(servicios) {
+            const servicesGrid = document.getElementById('services-grid');
+            servicesGrid.innerHTML = '';
+
+            const serviceTemplates = {
+                'Website Design': {
+                    icon: '🖥️',
+                    title: 'Website Design',
+                    description: 'Diseño completo y responsive para tu sitio web, optimizado para conversión y experiencia de usuario.'
+                },
+                'Landing Page': {
+                    icon: '📄',
+                    title: 'Landing Page',
+                    description: 'Páginas de aterrizaje enfocadas en conversiones, integradas con campañas de marketing.'
+                },
+                'Logo & Branding': {
+                    icon: '🎨',
+                    title: 'Logo & Branding',
+                    description: 'Desarrollo de identidad visual, logos e imagen corporativa para fortalecer tu marca.'
+                },
+                'Email Marketing': {
+                    icon: '✉️',
+                    title: 'Email Marketing',
+                    description: 'Diseño y automatización de campañas de email marketing efectivas.'
+                },
+                'SEO Review & Consulting': {
+                    icon: '🔍',
+                    title: 'SEO Review & Consulting',
+                    description: 'Análisis SEO detallado y recomendaciones para mejorar tu posicionamiento en buscadores.'
+                },
+                'Ecommerce Site': {
+                    icon: '🛒',
+                    title: 'Ecommerce Site',
+                    description: 'Desarrollo e integración de tiendas en línea con pasarelas de pago y gestión de productos.'
+                }
+            };
+
+            const serviciosSeleccionados = servicios && Array.isArray(servicios) ? servicios : ['Website Design', 'Landing Page', 'Logo & Branding'];
+
+            serviciosSeleccionados.forEach(servicio => {
+                const template = serviceTemplates[servicio];
+                if (template) {
+                    const serviceCard = document.createElement('div');
+                    serviceCard.className = 'service-card';
+                    serviceCard.innerHTML = `
+                        <div class="icon">${template.icon}</div>
+                        <h3>${template.title}</h3>
+                        <p>${template.description}</p>
+                    `;
+                    servicesGrid.appendChild(serviceCard);
+                }
+            });
+        }
+
+        function populateDeliverables(entregables) {
+            const deliverablesList = document.getElementById('deliverables-list');
+            deliverablesList.innerHTML = '';
+
+            const items = entregables && Array.isArray(entregables) ? entregables : [
+                'Diseño UI/UX completo para desktop y mobile',
+                'Desarrollo del sitio web e integraciones necesarias',
+                'Integración de ecommerce y pasarela de pago',
+                'Manual de marca y activos visuales',
+                'Capacitación en video de 30&nbsp;minutos para el equipo'
+            ];
+
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                deliverablesList.appendChild(li);
+            });
+        }
+
+        function populateTimeline(timeline) {
+            const timelineContainer = document.getElementById('process-timeline');
+            timelineContainer.innerHTML = '';
+
+            const fases = timeline && Array.isArray(timeline) ? timeline : [
+                { title: 'Fase 1: Brief & Investigación', duration: '1 semana', description: 'Recolección de requisitos, análisis de mercado y definición del alcance del proyecto.' },
+                { title: 'Fase 2: Diseño UI/UX', duration: '1‑2 semanas', description: 'Creación de wireframes y prototipos visuales, iteraciones según tu feedback.' },
+                { title: 'Fase 3: Desarrollo & Integraciones', duration: '2‑3 semanas', description: 'Implementación técnica del sitio, carga de contenido y configuraciones.' },
+                { title: 'Fase 4: Pruebas & Lanzamiento', duration: '1 semana', description: 'Revisión final, pruebas de calidad y puesta en línea del proyecto.' }
+            ];
+
+            fases.forEach(fase => {
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item';
+                timelineItem.innerHTML = `
+                    <div class="circle"></div>
+                    <h4>${fase.title}<br><small>(${fase.duration})</small></h4>
+                    <p>${fase.description}</p>
+                `;
+                timelineContainer.appendChild(timelineItem);
+            });
+        }
+
+        function populatePaymentTerms(terminos) {
+            const paymentTermsList = document.getElementById('payment-terms');
+            paymentTermsList.innerHTML = '';
+
+            const terms = terminos ? terminos.split('\n') : [
+                'Incluye todos los servicios y entregables definidos en esta propuesta',
+                'Pago inicial del 50% al aceptar la propuesta',
+                'Saldo restante al finalizar el proyecto'
+            ];
+
+            terms.forEach(term => {
+                const li = document.createElement('li');
+                li.textContent = term;
+                paymentTermsList.appendChild(li);
+            });
+        }
+
+        // Función para actualizar la navegación activa
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('header nav ul li a');
+            
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id') || '';
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', () => {
+            const code = getUrlParameter('code');
+            
+            if (code) {
+                loadProposal(code);
+            } else {
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('error-state').style.display = 'block';
+                document.getElementById('error-state').querySelector('p').textContent = 
+                    'No se especificó código de propuesta. Usa ?code=CODIGO en la URL.';
+            }
+
+            // Setup navigation
+            window.addEventListener('scroll', updateActiveNav);
+            
+            document.querySelectorAll('header nav ul li a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    document.querySelectorAll('header nav ul li a').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .loading-state, .error-state {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50vh;
+            text-align: center;
+        }
+
+        .loading-state p, .error-state p {
+            font-size: 1.2em;
+            color: #666;
+        }
+    </style>
+</Layout>

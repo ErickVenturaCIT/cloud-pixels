@@ -3,348 +3,199 @@ export interface Props {
     mode: 'create' | 'edit';
     proposalData?: any;
     formId: string;
-    readOnly?: boolean;
 }
 
-const { mode, proposalData, formId, readOnly = false } = Astro.props;
+const { mode, proposalData, formId } = Astro.props;
 ---
 
-{readOnly ? (
-    <!-- Vista de Solo Lectura -->
-    <div class="proposal-form-readonly">
-        <!-- Información Básica del Proyecto -->
-        <div class="form-section">
-            <h3>📋 Información Básica del Proyecto</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Nombre del Proyecto *</label>
-                    <div class="readonly-value">{proposalData?.nombre_proyecto || 'No especificado'}</div>
-                </div>
-                <div class="form-group">
-                    <label>Fecha de Propuesta *</label>
-                    <div class="readonly-value">{proposalData?.fecha_propuesta || 'No especificada'}</div>
-                </div>
+<form id={formId} class="proposal-form">
+    <!-- Información Básica del Proyecto -->
+    <div class="form-section">
+        <h3>📋 Información Básica del Proyecto</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label for={`${formId}-projectName`}>Nombre del Proyecto *</label>
+                <input type="text" id={`${formId}-projectName`} name="projectName" required 
+                       value={proposalData?.nombre_proyecto || ''}>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Nombre del Cliente *</label>
-                    <div class="readonly-value">{proposalData?.cliente_nombre || 'No especificado'}</div>
-                </div>
-                <div class="form-group">
-                    <label>Empresa del Cliente *</label>
-                    <div class="readonly-value">{proposalData?.cliente_empresa || 'No especificada'}</div>
-                </div>
+            <div class="form-group">
+                <label for={`${formId}-proposalDate`}>Fecha de Propuesta *</label>
+                <input type="date" id={`${formId}-proposalDate`} name="proposalDate" required 
+                       value={proposalData?.fecha_propuesta || ''}>
             </div>
         </div>
-
-        <!-- Resumen Ejecutivo -->
-        <div class="form-section">
-            <h3>📊 Resumen Ejecutivo</h3>
+        <div class="form-row">
             <div class="form-group">
-                <label>Descripción del proyecto y propuesta de valor *</label>
-                <div class="readonly-value">{proposalData?.resumen_ejecutivo || 'No especificado'}</div>
-            </div>
-        </div>
-
-        <!-- Objetivos y Alcance -->
-        <div class="form-section">
-            <h3>🎯 Objetivos & Alcance</h3>
-            <div class="form-group">
-                <label>Objetivos específicos y alcance del trabajo *</label>
-                <div class="readonly-value">{proposalData?.objetivos_alcance || 'No especificado'}</div>
-            </div>
-        </div>
-
-        <!-- Servicios -->
-        <div class="form-section">
-            <h3>🛠️ Servicios Incluidos</h3>
-            <div class="form-group">
-                <label>Servicios seleccionados</label>
-                <div class="readonly-value">
-                    {proposalData?.servicios_seleccionados && Array.isArray(proposalData.servicios_seleccionados) ? 
-                        proposalData.servicios_seleccionados.join(', ') : 'No especificados'}
-                </div>
-            </div>
-        </div>
-
-        <!-- Entregables -->
-        <div class="form-section">
-            <h3>📦 Entregables</h3>
-            <div class="form-group">
-                <label>Entregables del proyecto</label>
-                <div class="readonly-value">
-                    {proposalData?.entregables && Array.isArray(proposalData.entregables) ? 
-                        proposalData.entregables.map((entregable: string) => <div class="deliverable-item-readonly">• {entregable}</div>) :
-                        <div>No especificados</div>}
-                </div>
-            </div>
-        </div>
-
-        <!-- Propuesta Económica -->
-        <div class="form-section">
-            <h3>💰 Propuesta Económica</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Valor del Proyecto *</label>
-                    <div class="readonly-value">{proposalData?.valor_proyecto || 'No especificado'}</div>
-                </div>
+                <label for={`${formId}-clientName`}>Nombre del Cliente *</label>
+                <input type="text" id={`${formId}-clientName`} name="clientName" required 
+                       value={proposalData?.cliente_nombre || ''}>
             </div>
             <div class="form-group">
-                <label>Condiciones de Pago *</label>
-                <div class="readonly-value">{proposalData?.terminos_pago || 'No especificadas'}</div>
-            </div>
-        </div>
-
-        <!-- Información de Contacto -->
-        <div class="form-section">
-            <h3>📞 Información de Contacto</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Email de Contacto</label>
-                    <div class="readonly-value">{proposalData?.contacto_email || 'No especificado'}</div>
-                </div>
-                <div class="form-group">
-                    <label>WhatsApp</label>
-                    <div class="readonly-value">{proposalData?.contacto_whatsapp || 'No especificado'}</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Texto Introductorio -->
-        <div class="form-section">
-            <h3>📝 Texto Introductorio</h3>
-            <div class="form-group">
-                <label>Texto introductorio de la propuesta</label>
-                <div class="readonly-value">{proposalData?.texto_introductorio || 'No especificado'}</div>
-            </div>
-        </div>
-
-        <!-- Descripción de la Empresa -->
-        <div class="form-section">
-            <h3>🏢 Descripción de la Empresa</h3>
-            <div class="form-group">
-                <label>Descripción de Cloud Pixels</label>
-                <div class="readonly-value">{proposalData?.descripcion_empresa || 'No especificada'}</div>
-            </div>
-        </div>
-
-        <!-- Horarios de Atención -->
-        <div class="form-section">
-            <h3>🕒 Horarios de Atención</h3>
-            <div class="form-group">
-                <label>Horarios de atención al cliente</label>
-                <div class="readonly-value">{proposalData?.horarios_atencion || 'No especificados'}</div>
-            </div>
-        </div>
-
-        <!-- Términos y Condiciones -->
-        <div class="form-section">
-            <h3>📋 Términos y Condiciones</h3>
-            <div class="form-group">
-                <label>Términos y condiciones de la propuesta</label>
-                <div class="readonly-value">{proposalData?.terminos_condiciones || 'No especificados'}</div>
-            </div>
-            <div class="form-group">
-                <label>Términos de validez</label>
-                <div class="readonly-value">{proposalData?.terminos_validez || 'No especificados'}</div>
-            </div>
-            <div class="form-group">
-                <label>Texto de aceptación</label>
-                <div class="readonly-value">{proposalData?.texto_aceptacion || 'No especificado'}</div>
+                <label for={`${formId}-clientCompany`}>Empresa del Cliente *</label>
+                <input type="text" id={`${formId}-clientCompany`} name="clientCompany" required 
+                       value={proposalData?.cliente_empresa || ''}>
             </div>
         </div>
     </div>
-) : (
-    <!-- Formulario Normal Editable -->
-    <form id={formId} class="proposal-form">
-        <!-- Información Básica del Proyecto -->
-        <div class="form-section">
-            <h3>📋 Información Básica del Proyecto</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for={`${formId}-projectName`}>Nombre del Proyecto *</label>
-                    <input type="text" id={`${formId}-projectName`} name="projectName" required 
-                           value={proposalData?.nombre_proyecto || ''}>
-                </div>
-                <div class="form-group">
-                    <label for={`${formId}-proposalDate`}>Fecha de Propuesta *</label>
-                    <input type="date" id={`${formId}-proposalDate`} name="proposalDate" required 
-                           value={proposalData?.fecha_propuesta || ''}>
-                </div>
+
+    <!-- Resumen Ejecutivo -->
+    <div class="form-section">
+        <h3>📊 Resumen Ejecutivo</h3>
+        <div class="form-group">
+            <label for={`${formId}-executiveSummary`}>Descripción del proyecto y propuesta de valor *</label>
+            <textarea id={`${formId}-executiveSummary`} name="executiveSummary" required>{proposalData?.resumen_ejecutivo || ''}</textarea>
+        </div>
+    </div>
+
+    <!-- Objetivos y Alcance -->
+    <div class="form-section">
+        <h3>🎯 Objetivos & Alcance</h3>
+        <div class="form-group">
+            <label for={`${formId}-objectivesScope`}>Objetivos específicos y alcance del trabajo *</label>
+            <textarea id={`${formId}-objectivesScope`} name="objectivesScope" required>{proposalData?.objetivos_alcance || ''}</textarea>
+        </div>
+    </div>
+
+    <!-- Servicios -->
+    <div class="form-section">
+        <h3>🛠️ Servicios Incluidos</h3>
+        <div class="checkbox-group">
+            <div class="checkbox-item">
+                <input type="checkbox" id={`${formId}-service1`} name="services" value="Website Design" 
+                       checked={proposalData?.servicios_seleccionados?.includes('Website Design') || false}>
+                <label for={`${formId}-service1`}>Website Design</label>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for={`${formId}-clientName`}>Nombre del Cliente *</label>
-                    <input type="text" id={`${formId}-clientName`} name="clientName" required 
-                           value={proposalData?.cliente_nombre || ''}>
-                </div>
-                <div class="form-group">
-                    <label for={`${formId}-clientCompany`}>Empresa del Cliente *</label>
-                    <input type="text" id={`${formId}-clientCompany`} name="clientCompany" required 
-                           value={proposalData?.cliente_empresa || ''}>
-                </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id={`${formId}-service2`} name="services" value="Landing Page" 
+                       checked={proposalData?.servicios_seleccionados?.includes('Landing Page') || false}>
+                <label for={`${formId}-service2`}>Landing Page</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id={`${formId}-service3`} name="services" value="Logo & Branding" 
+                       checked={proposalData?.servicios_seleccionados?.includes('Logo & Branding') || false}>
+                <label for={`${formId}-service3`}>Logo & Branding</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id={`${formId}-service4`} name="services" value="Email Marketing" 
+                       checked={proposalData?.servicios_seleccionados?.includes('Email Marketing') || false}>
+                <label for={`${formId}-service4`}>Email Marketing</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id={`${formId}-service5`} name="services" value="SEO Review & Consulting" 
+                       checked={proposalData?.servicios_seleccionados?.includes('SEO Review & Consulting') || false}>
+                <label for={`${formId}-service5`}>SEO Review & Consulting</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id={`${formId}-service6`} name="services" value="Ecommerce Site" 
+                       checked={proposalData?.servicios_seleccionados?.includes('Ecommerce Site') || false}>
+                <label for={`${formId}-service6`}>Ecommerce Site</label>
             </div>
         </div>
+    </div>
 
-        <!-- Resumen Ejecutivo -->
-        <div class="form-section">
-            <h3>📊 Resumen Ejecutivo</h3>
-            <div class="form-group">
-                <label for={`${formId}-executiveSummary`}>Descripción del proyecto y propuesta de valor *</label>
-                <textarea id={`${formId}-executiveSummary`} name="executiveSummary" required>{proposalData?.resumen_ejecutivo || ''}</textarea>
-            </div>
-        </div>
-
-        <!-- Objetivos y Alcance -->
-        <div class="form-section">
-            <h3>🎯 Objetivos & Alcance</h3>
-            <div class="form-group">
-                <label for={`${formId}-objectivesScope`}>Objetivos específicos y alcance del trabajo *</label>
-                <textarea id={`${formId}-objectivesScope`} name="objectivesScope" required>{proposalData?.objetivos_alcance || ''}</textarea>
-            </div>
-        </div>
-
-        <!-- Servicios -->
-        <div class="form-section">
-            <h3>🛠️ Servicios Incluidos</h3>
-            <div class="checkbox-group">
-                <div class="checkbox-item">
-                    <input type="checkbox" id={`${formId}-service1`} name="services" value="Website Design" 
-                           checked={proposalData?.servicios_seleccionados?.includes('Website Design') || false}>
-                    <label for={`${formId}-service1`}>Website Design</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id={`${formId}-service2`} name="services" value="Landing Page" 
-                           checked={proposalData?.servicios_seleccionados?.includes('Landing Page') || false}>
-                    <label for={`${formId}-service2`}>Landing Page</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id={`${formId}-service3`} name="services" value="Logo & Branding" 
-                           checked={proposalData?.servicios_seleccionados?.includes('Logo & Branding') || false}>
-                    <label for={`${formId}-service3`}>Logo & Branding</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id={`${formId}-service4`} name="services" value="Email Marketing" 
-                           checked={proposalData?.servicios_seleccionados?.includes('Email Marketing') || false}>
-                    <label for={`${formId}-service4`}>Email Marketing</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id={`${formId}-service5`} name="services" value="SEO Review & Consulting" 
-                           checked={proposalData?.servicios_seleccionados?.includes('SEO Review & Consulting') || false}>
-                    <label for={`${formId}-service5`}>SEO Review & Consulting</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id={`${formId}-service6`} name="services" value="Ecommerce Site" 
-                           checked={proposalData?.servicios_seleccionados?.includes('Ecommerce Site') || false}>
-                    <label for={`${formId}-service6`}>Ecommerce Site</label>
-                </div>
-            </div>
-        </div>
-
-        <!-- Entregables -->
-        <div class="form-section">
-            <h3>📦 Entregables</h3>
-            <div class="deliverables-container">
-                <div id={`${formId}-deliverablesList`} class="deliverables-list">
-                    {proposalData?.entregables && Array.isArray(proposalData.entregables) ? 
-                        proposalData.entregables.map((entregable: string, index: number) => (
-                            <div class="deliverable-item">
-                                <input type="text" name="deliverables[]" value={entregable} required>
-                                <button type="button" class="btn btn-danger btn-small" data-action="remove-deliverable">❌</button>
-                            </div>
-                        )) :
+    <!-- Entregables -->
+    <div class="form-section">
+        <h3>📦 Entregables</h3>
+        <div class="deliverables-container">
+            <div id={`${formId}-deliverablesList`} class="deliverables-list">
+                {proposalData?.entregables && Array.isArray(proposalData.entregables) ? 
+                    proposalData.entregables.map((entregable: string, index: number) => (
                         <div class="deliverable-item">
-                            <input type="text" name="deliverables[]" placeholder="Entregable 1" required>
+                            <input type="text" name="deliverables[]" value={entregable} required>
                             <button type="button" class="btn btn-danger btn-small" data-action="remove-deliverable">❌</button>
                         </div>
-                    }
-                </div>
-                <button type="button" class="btn btn-secondary" data-action="add-deliverable">➕ Agregar Entregable</button>
+                    )) :
+                    <div class="deliverable-item">
+                        <input type="text" name="deliverables[]" placeholder="Entregable 1" required>
+                        <button type="button" class="btn btn-danger btn-small" data-action="remove-deliverable">❌</button>
+                    </div>
+                }
+            </div>
+            <button type="button" class="btn btn-secondary" data-action="add-deliverable">➕ Agregar Entregable</button>
+        </div>
+    </div>
+
+    <!-- Propuesta Económica -->
+    <div class="form-section">
+        <h3>💰 Propuesta Económica</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label for={`${formId}-projectValue`}>Valor del Proyecto *</label>
+                <input type="text" id={`${formId}-projectValue`} name="projectValue" placeholder="$X,XXX" required 
+                       value={proposalData?.valor_proyecto || ''}>
             </div>
         </div>
+        <div class="form-group">
+            <label for={`${formId}-paymentTerms`}>Condiciones de Pago *</label>
+            <textarea id={`${formId}-paymentTerms`} name="paymentTerms" placeholder="• Pago inicial del 50% al aceptar la propuesta&#10;• Saldo restante al finalizar el proyecto&#10;• Incluye todos los servicios y entregables definidos" required>{proposalData?.terminos_pago || ''}</textarea>
+        </div>
+    </div>
 
-        <!-- Propuesta Económica -->
-        <div class="form-section">
-            <h3>💰 Propuesta Económica</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for={`${formId}-projectValue`}>Valor del Proyecto *</label>
-                    <input type="text" id={`${formId}-projectValue`} name="projectValue" placeholder="$X,XXX" required 
-                           value={proposalData?.valor_proyecto || ''}>
-                </div>
+    <!-- Información de Contacto -->
+    <div class="form-section">
+        <h3>📞 Información de Contacto</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label for={`${formId}-contactEmail`}>Email de Contacto</label>
+                <input type="email" id={`${formId}-contactEmail`} name="contactEmail" placeholder="tu.correo@cloudpixels.com" 
+                       value={proposalData?.contacto_email || ''}>
             </div>
             <div class="form-group">
-                <label for={`${formId}-paymentTerms`}>Condiciones de Pago *</label>
-                <textarea id={`${formId}-paymentTerms`} name="paymentTerms" placeholder="• Pago inicial del 50% al aceptar la propuesta&#10;• Saldo restante al finalizar el proyecto&#10;• Incluye todos los servicios y entregables definidos" required>{proposalData?.terminos_pago || ''}</textarea>
+                <label for={`${formId}-contactWhatsApp`}>WhatsApp</label>
+                <input type="text" id={`${formId}-contactWhatsApp`} name="contactWhatsApp" placeholder="+XX XXX XXX XXXX" 
+                       value={proposalData?.contacto_whatsapp || ''}>
             </div>
         </div>
+    </div>
 
-        <!-- Información de Contacto -->
-        <div class="form-section">
-            <h3>📞 Información de Contacto</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for={`${formId}-contactEmail`}>Email de Contacto</label>
-                    <input type="email" id={`${formId}-contactEmail`} name="contactEmail" placeholder="tu.correo@cloudpixels.com" 
-                           value={proposalData?.contacto_email || ''}>
-                </div>
-                <div class="form-group">
-                    <label for={`${formId}-contactWhatsApp`}>WhatsApp</label>
-                    <input type="text" id={`${formId}-contactWhatsApp`} name="contactWhatsApp" placeholder="+XX XXX XXX XXXX" 
-                           value={proposalData?.contacto_whatsapp || ''}>
-                </div>
-            </div>
+    <!-- Texto Introductorio -->
+    <div class="form-section">
+        <h3>📝 Texto Introductorio</h3>
+        <div class="form-group">
+            <label for={`${formId}-introText`}>Texto introductorio de la propuesta</label>
+            <textarea id={`${formId}-introText`} name="introText" placeholder="Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.">{proposalData?.texto_introductorio || 'Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.'}</textarea>
         </div>
+    </div>
 
-        <!-- Texto Introductorio -->
-        <div class="form-section">
-            <h3>📝 Texto Introductorio</h3>
-            <div class="form-group">
-                <label for={`${formId}-introText`}>Texto introductorio de la propuesta</label>
-                <textarea id={`${formId}-introText`} name="introText" placeholder="Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.">{proposalData?.texto_introductorio || 'Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.'}</textarea>
-            </div>
+    <!-- Descripción de la Empresa -->
+    <div class="form-section">
+        <h3>🏢 Descripción de la Empresa</h3>
+        <div class="form-group">
+            <label for={`${formId}-companyDescription`}>Descripción de Cloud Pixels</label>
+            <textarea id={`${formId}-companyDescription`} name="companyDescription" placeholder="Con más de 9 años de experiencia, Cloud Pixels es un equipo global...">{proposalData?.descripcion_empresa || 'Con más de 9 años de experiencia, Cloud Pixels es un equipo global con oficinas en Honduras, Estados Unidos, Estonia y Panamá. Combinamos talento de diseño y desarrollo de todo el mundo para crear soluciones digitales excepcionales y escalables.'}</textarea>
         </div>
+    </div>
 
-        <!-- Descripción de la Empresa -->
-        <div class="form-section">
-            <h3>🏢 Descripción de la Empresa</h3>
-            <div class="form-group">
-                <label for={`${formId}-companyDescription`}>Descripción de Cloud Pixels</label>
-                <textarea id={`${formId}-companyDescription`} name="companyDescription" placeholder="Con más de 9 años de experiencia, Cloud Pixels es un equipo global...">{proposalData?.descripcion_empresa || 'Con más de 9 años de experiencia, Cloud Pixels es un equipo global con oficinas en Honduras, Estados Unidos, Estonia y Panamá. Combinamos talento de diseño y desarrollo de todo el mundo para crear soluciones digitales excepcionales y escalables.'}</textarea>
-            </div>
+    <!-- Horarios de Atención -->
+    <div class="form-section">
+        <h3>🕒 Horarios de Atención</h3>
+        <div class="form-group">
+            <label for={`${formId}-attentionHours`}>Horarios de atención al cliente</label>
+            <textarea id={`${formId}-attentionHours`} name="attentionHours" placeholder="Nuestro equipo está disponible...">{proposalData?.horarios_atencion || 'Nuestro equipo está disponible de lunes a viernes de 9:00 a.m. a 6:00 p.m. (aplican días feriados). Para consultas fuera de este horario, responderemos al siguiente día laboral.'}</textarea>
         </div>
+    </div>
 
-        <!-- Horarios de Atención -->
-        <div class="form-section">
-            <h3>🕒 Horarios de Atención</h3>
-            <div class="form-group">
-                <label for={`${formId}-attentionHours`}>Horarios de atención al cliente</label>
-                <textarea id={`${formId}-attentionHours`} name="attentionHours" placeholder="Nuestro equipo está disponible...">{proposalData?.horarios_atencion || 'Nuestro equipo está disponible de lunes a viernes de 9:00 a.m. a 6:00 p.m. (aplican días feriados). Para consultas fuera de este horario, responderemos al siguiente día laboral.'}</textarea>
-            </div>
+    <!-- Términos y Condiciones -->
+    <div class="form-section">
+        <h3>📋 Términos y Condiciones</h3>
+        <div class="form-group">
+            <label for={`${formId}-termsConditions`}>Términos y condiciones de la propuesta</label>
+            <textarea id={`${formId}-termsConditions`} name="termsConditions" placeholder="Al aceptar esta propuesta...">{proposalData?.terminos_condiciones || 'Al aceptar esta propuesta, el cliente se compromete a abonar un anticipo del 50% para iniciar el proyecto. El saldo restante se pagará al finalizar, antes del lanzamiento.'}</textarea>
         </div>
-
-        <!-- Términos y Condiciones -->
-        <div class="form-section">
-            <h3>📋 Términos y Condiciones</h3>
-            <div class="form-group">
-                <label for={`${formId}-termsConditions`}>Términos y condiciones de la propuesta</label>
-                <textarea id={`${formId}-termsConditions`} name="termsConditions" placeholder="Al aceptar esta propuesta...">{proposalData?.terminos_condiciones || 'Al aceptar esta propuesta, el cliente se compromete a abonar un anticipo del 50% para iniciar el proyecto. El saldo restante se pagará al finalizar, antes del lanzamiento.'}</textarea>
-            </div>
-            <div class="form-group">
-                <label for={`${formId}-validityTerms`}>Términos de validez</label>
-                <textarea id={`${formId}-validityTerms`} name="validityTerms" placeholder="Esta propuesta es válida...">{proposalData?.terminos_validez || 'Esta propuesta es válida durante 30 días a partir de la fecha de emisión. Los servicios de mantenimiento, hosting o funcionalidades adicionales no mencionados aquí se considerarán extras opcionales.'}</textarea>
-            </div>
-            <div class="form-group">
-                <label for={`${formId}-acceptanceText`}>Texto de aceptación</label>
-                <textarea id={`${formId}-acceptanceText`} name="acceptanceText" placeholder="¿Listo para comenzar?">{proposalData?.texto_aceptacion || '¿Listo para comenzar? Haz clic en el botón de abajo para aceptar la propuesta. Podrás firmar digitalmente y realizar el pago inicial.'}</textarea>
-            </div>
+        <div class="form-group">
+            <label for={`${formId}-validityTerms`}>Términos de validez</label>
+            <textarea id={`${formId}-validityTerms`} name="validityTerms" placeholder="Esta propuesta es válida...">{proposalData?.terminos_validez || 'Esta propuesta es válida durante 30 días a partir de la fecha de emisión. Los servicios de mantenimiento, hosting o funcionalidades adicionales no mencionados aquí se considerarán extras opcionales.'}</textarea>
         </div>
+        <div class="form-group">
+            <label for={`${formId}-acceptanceText`}>Texto de aceptación</label>
+            <textarea id={`${formId}-acceptanceText`} name="acceptanceText" placeholder="¿Listo para comenzar?">{proposalData?.texto_aceptacion || '¿Listo para comenzar? Haz clic en el botón de abajo para aceptar la propuesta. Podrás firmar digitalmente y realizar el pago inicial.'}</textarea>
+        </div>
+    </div>
 
-        <!-- Botón de envío -->
-        {mode === 'create' ? (
-            <button type="submit" class="btn btn-primary">🚀 Generar Propuesta</button>
-        ) : (
-            <button type="submit" class="btn btn-primary">💾 Actualizar Propuesta</button>
-        )}
-    </form>
-)}
+    <!-- Botón de envío -->
+    {mode === 'create' ? (
+        <button type="submit" class="btn btn-primary">🚀 Generar Propuesta (Se abrirá automáticamente)</button>
+    ) : (
+        <button type="submit" class="btn btn-primary">💾 Actualizar Propuesta</button>
+    )}
+</form>

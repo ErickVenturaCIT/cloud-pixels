@@ -274,46 +274,6 @@
             margin-top: 20px;
         }
 
-        /* Texto de términos - completamente estático */
-        .terms-text {
-            margin: 16px 0;
-            line-height: 1.6;
-            user-select: text;
-            cursor: default;
-            pointer-events: none;
-            -webkit-user-modify: read-only;
-            -moz-user-modify: read-only;
-            user-modify: read-only;
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            outline: none !important;
-            border: none !important;
-            background: transparent !important;
-            resize: none !important;
-            overflow: visible !important;
-        }
-
-        /* Texto de aceptación - completamente estático */
-        .acceptance-text {
-            margin: 16px 0;
-            line-height: 1.6;
-            user-select: text;
-            cursor: default;
-            pointer-events: none;
-            -webkit-user-modify: read-only;
-            -moz-user-modify: read-only;
-            user-modify: read-only;
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            outline: none !important;
-            border: none !important;
-            background: transparent !important;
-            resize: none !important;
-            overflow: visible !important;
-        }
-
         /* Sección de aceptación */
         .accept-section {
             text-align: center;

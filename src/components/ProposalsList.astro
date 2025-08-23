@@ -1,0 +1,279 @@
+---
+import { PropuestasService } from "../lib/supabase";
+
+// Obtener todas las propuestas
+let propuestas = [];
+let error = null;
+
+try {
+    propuestas = await PropuestasService.getAllProposals();
+} catch (e) {
+    console.error('Error cargando propuestas:', e);
+    error = e.message;
+}
+---
+
+<div class="proposals-list">
+    {error ? (
+        <div class="error-message">
+            <p>Error cargando propuestas: {error}</p>
+        </div>
+    ) : propuestas.length === 0 ? (
+        <div class="empty-state">
+            <p>No hay propuestas creadas aún.</p>
+            <p>Crea tu primera propuesta usando el formulario.</p>
+        </div>
+    ) : (
+        <div class="proposals-grid">
+            {propuestas.map((propuesta) => (
+                <div class="proposal-card" data-id={propuesta.id}>
+                    <div class="proposal-header">
+                        <h3 class="proposal-code">{propuesta.codigo_propuesta}</h3>
+                        <div class="proposal-actions">
+                            <a 
+                                href={`/${propuesta.codigo_propuesta}`} 
+                                class="btn-view" 
+                                target="_blank"
+                                title="Ver propuesta"
+                            >
+                                👁️
+                            </a>
+                            <button 
+                                class="btn-edit" 
+                                data-action="edit-proposal"
+                                data-id={propuesta.id}
+                                title="Editar propuesta"
+                            >
+                                ✏️
+                            </button>
+                            <button 
+                                class="btn-delete" 
+                                data-action="delete-proposal"
+                                data-id={propuesta.id}
+                                title="Eliminar propuesta"
+                            >
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="proposal-info">
+                        <h4 class="project-name">{propuesta.nombre_proyecto || 'Sin nombre'}</h4>
+                        <p class="client-info">
+                            <strong>Cliente:</strong> {propuesta.cliente_nombre || 'Sin nombre'}
+                            {propuesta.cliente_empresa && ` - ${propuesta.cliente_empresa}`}
+                        </p>
+                        <p class="proposal-date">
+                            <strong>Fecha:</strong> {propuesta.fecha_propuesta ? 
+                                new Date(propuesta.fecha_propuesta).toLocaleDateString('es-ES') : 
+                                'Sin fecha'
+                            }
+                        </p>
+                        {propuesta.valor_proyecto && (
+                            <p class="project-value">
+                                <strong>Valor:</strong> {propuesta.valor_proyecto}
+                            </p>
+                        )}
+                    </div>
+                    
+                    {propuesta.servicios_seleccionados && Array.isArray(propuesta.servicios_seleccionados) && propuesta.servicios_seleccionados.length > 0 && (
+                        <div class="services-preview">
+                            <p class="services-label"><strong>Servicios:</strong></p>
+                            <div class="services-tags">
+                                {propuesta.servicios_seleccionados.slice(0, 3).map(servicio => (
+                                    <span class="service-tag">{servicio}</span>
+                                ))}
+                                {propuesta.servicios_seleccionados.length > 3 && (
+                                    <span class="service-tag more">+{propuesta.servicios_seleccionados.length - 3}</span>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    )}
+</div>
+
+<style>
+    .proposals-list {
+        width: 100%;
+    }
+
+    .error-message {
+        padding: 2rem;
+        text-align: center;
+        background-color: #fee;
+        border: 1px solid #fcc;
+        border-radius: 8px;
+        color: #c44;
+    }
+
+    .empty-state {
+        padding: 3rem;
+        text-align: center;
+        color: #666;
+    }
+
+    .empty-state p {
+        margin: 0.5rem 0;
+    }
+
+    .proposals-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem 0;
+    }
+
+    .proposal-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .proposal-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .proposal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .proposal-code {
+        font-family: 'Courier New', monospace;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #2c5aa0;
+        margin: 0;
+    }
+
+    .proposal-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-view,
+    .btn-edit,
+    .btn-delete {
+        padding: 0.5rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-view {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .btn-view:hover {
+        background-color: #bbdefb;
+    }
+
+    .btn-edit {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .btn-edit:hover {
+        background-color: #e1bee7;
+    }
+
+    .btn-delete {
+        background-color: #ffebee;
+        color: #d32f2f;
+    }
+
+    .btn-delete:hover {
+        background-color: #ffcdd2;
+    }
+
+    .proposal-info {
+        margin-bottom: 1rem;
+    }
+
+    .project-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0 0 0.5rem 0;
+        line-height: 1.3;
+    }
+
+    .client-info,
+    .proposal-date,
+    .project-value {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 0.25rem 0;
+        line-height: 1.4;
+    }
+
+    .services-preview {
+        border-top: 1px solid #f0f0f0;
+        padding-top: 0.75rem;
+    }
+
+    .services-label {
+        font-size: 0.85rem;
+        color: #666;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .services-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .service-tag {
+        background-color: #f5f5f5;
+        color: #333;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .service-tag.more {
+        background-color: #e0e0e0;
+        color: #666;
+    }
+
+    @media (max-width: 768px) {
+        .proposals-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .proposal-card {
+            padding: 1rem;
+        }
+
+        .proposal-header {
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .proposal-actions {
+            align-self: flex-end;
+        }
+    }
+</style>

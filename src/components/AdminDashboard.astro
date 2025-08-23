@@ -1,13 +1,19 @@
 ---
 import '../styles/adminStyle.css';
 import ProposalForm from './ProposalForm.astro';
+import ProposalsList from './ProposalsList.astro';
 ---
 
     <div class="admin-container">
         <div class="admin-header">
             <h1>🚀 Cloud Pixels - Panel de Administración</h1>
             <p>Sistema de Gestión de Propuestas Personalizadas</p>
-
+            <div style="margin-top: 15px; padding: 15px; background: rgba(242, 126, 42, 0.1); border-radius: 8px; border-left: 4px solid #F27E2A;">
+                <p style="margin: 0; color: #08002B; font-size: 0.95em;">
+                    <strong>💡 ¿Cómo funciona?</strong> Al generar una propuesta, se crea un enlace único que se abre automáticamente. 
+                    Los datos se cargan en tiempo real desde la base de datos, por lo que los cambios se reflejan inmediatamente.
+                </p>
+            </div>
         </div>
 
         <div class="tabs">
@@ -46,15 +52,28 @@ import ProposalForm from './ProposalForm.astro';
             <div class="error-message" id="errorMessage">
                 ❌ Error al generar la propuesta. Por favor, verifica los datos e intenta nuevamente.
             </div>
+            
+            <!-- Panel de Logs en Tiempo Real -->
+            <div class="logs-panel" id="logsPanel">
+                <div class="logs-header">
+                    <h4>📊 Logs del Sistema</h4>
+                    <button type="button" class="btn btn-small btn-secondary" data-action="clear-logs">🧹 Limpiar</button>
+                    <button type="button" class="btn btn-small btn-info" data-action="export-logs">📥 Exportar</button>
+                </div>
+                <div class="logs-content" id="logsContent">
+                    <div class="log-entry log-info">
+                        <span class="log-time">[Sistema]</span>
+                        <span class="log-message">Panel de logs inicializado. Los logs se mostrarán aquí en tiempo real.</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Tab: Lista de Propuestas -->
         <div id="list-tab" class="tab-content">
             <div class="form-section">
                 <h3>📋 Propuestas Creadas</h3>
-                <div id="proposalsList" class="proposals-list">
-                    <!-- Las propuestas se cargarán dinámicamente aquí -->
-                </div>
+                <ProposalsList />
             </div>
         </div>
     </div>
@@ -85,6 +104,6 @@ import ProposalForm from './ProposalForm.astro';
         </div>
     </div>
 
-    	<script is:inline src="/scripts/admin-consolidated.js"></script>
+    <script type="module" src="/src/scripts/admin-main.js"></script>
    
 

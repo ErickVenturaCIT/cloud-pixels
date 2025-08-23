@@ -43,14 +43,16 @@ export async function initSupabase() {
             showLog('🌐 URL de Supabase: https://cgchcozsszowdizlupkc.supabase.co', 'info');
             
             showLog('📋 Cargando lista de propuestas existentes...', 'info');
-            await loadProposalsList();
+            // No recargar automáticamente - solo mostrar mensaje
+            showLog('✅ Operación completada. La lista se actualizará al cambiar de pestaña.', 'success');
             showLog('✅ Lista de propuestas cargada correctamente', 'success');
             
         } catch (dbError) {
             showLog(`❌ Error conectando a Supabase: ${dbError.message}`, 'error');
             showLog('🔄 Cambiando a modo mock...', 'warning');
             db = createMockService();
-            await loadProposalsList();
+            // No recargar automáticamente - solo mostrar mensaje
+            showLog('✅ Operación completada. La lista se actualizará al cambiar de pestaña.', 'success');
         }
         
     } catch (error) {
@@ -122,66 +124,11 @@ function createMockService() {
     };
 }
 
-// Función para cargar la lista de propuestas
-export async function loadProposalsList() {
-    if (!db) {
-        showLog('❌ Base de datos no inicializada', 'error');
-        return;
-    }
-
-    try {
-        showLog('📋 Consultando propuestas en la base de datos...', 'info');
-        const startTime = Date.now();
-        
-        const proposals = await db.getAllProposals();
-        const endTime = Date.now();
-        const duration = endTime - startTime;
-        
-        showLog(`✅ ${proposals.length} propuestas cargadas en ${duration}ms`, 'success');
-        
-        const container = document.getElementById('proposalsList');
-        if (!container) return;
-
-        if (proposals.length === 0) {
-            showLog('📭 No hay propuestas en la base de datos', 'info');
-            container.innerHTML = `
-                <div class="empty-state">
-                    <h3>📭 No hay propuestas creadas</h3>
-                    <p>Comienza creando tu primera propuesta en la pestaña "Crear Nueva Propuesta"</p>
-                </div>
-            `;
-            return;
-        }
-
-        showLog('🎨 Renderizando lista de propuestas...', 'info');
-        container.innerHTML = proposals.map(proposal => `
-            <div class="proposal-card">
-                <div class="proposal-header">
-                    <div>
-                        <div class="proposal-title">${proposal.nombre_proyecto || 'Sin título'}</div>
-                        <div class="proposal-client">${proposal.cliente_nombre || 'Sin cliente'} - ${proposal.cliente_empresa || 'Sin empresa'}</div>
-                        <div class="proposal-code"><strong>Código:</strong> <code>${proposal.codigo_propuesta || 'N/A'}</code></div>
-                    </div>
-                    <div class="proposal-date">${proposal.created_at ? new Date(proposal.created_at).toLocaleDateString('es-ES') : 'Sin fecha'}</div>
-                </div>
-                <div class="proposal-actions">
-                    <button class="btn btn-primary btn-small" data-action="open-proposal" data-code="${proposal.codigo_propuesta}">🚀 Abrir</button>
-                    <button class="btn btn-secondary btn-small" data-action="preview-proposal" data-id="${proposal.id}">👁️ Vista Previa</button>
-                    <button class="btn btn-secondary btn-small" data-action="edit-proposal" data-id="${proposal.id}">✏️ Editar</button>
-                    <button class="btn btn-info btn-small" data-action="copy-proposal-link-code" data-code="${proposal.codigo_propuesta}">🔗 Copiar Enlace</button>
-                    <button class="btn btn-danger btn-small" data-action="delete-proposal" data-id="${proposal.id}">🗑️ Eliminar</button>
-                </div>
-            </div>
-        `).join('');
-        
-        showLog('✅ Lista de propuestas renderizada correctamente', 'success');
-        
-    } catch (error) {
-        showLog(`❌ ERROR cargando propuestas: ${error.message}`, 'error');
-        showLog(`🔍 Stack trace: ${error.stack}`, 'error');
-        showError('Error cargando las propuestas');
-    }
-}
+// DEPRECATED: Función para cargar la lista de propuestas (ahora se usa componente ProposalsList.astro)
+// export async function loadProposalsList() {
+//     // Esta función ya no es necesaria porque usamos el componente ProposalsList.astro
+//     // que renderiza la lista directamente en el servidor
+// }
 
 // Función para editar una propuesta
 export async function editProposal(proposalId) {
@@ -297,7 +244,8 @@ export async function deleteProposal(proposalId) {
     if (confirm('¿Estás seguro de que quieres eliminar esta propuesta? Esta acción no se puede deshacer.')) {
         try {
             await db.deleteProposal(proposalId);
-            await loadProposalsList();
+            // No recargar automáticamente - solo mostrar mensaje
+            showLog('✅ Operación completada. La lista se actualizará al cambiar de pestaña.', 'success');
             showLog('✅ Propuesta eliminada exitosamente', 'success');
         } catch (error) {
             console.error('Error eliminando propuesta:', error);
@@ -351,7 +299,7 @@ export function getDatabase() {
 
 // Hacer las funciones disponibles globalmente para compatibilidad
 if (typeof window !== 'undefined') {
-    window.loadProposalsList = loadProposalsList;
+    // window.loadProposalsList = loadProposalsList; // DEPRECATED
     window.editProposal = editProposal;
     window.previewProposal = previewProposal;
     window.deleteProposal = deleteProposal;

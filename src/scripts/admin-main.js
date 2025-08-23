@@ -24,7 +24,7 @@ import {
 
 import { 
     initSupabase, 
-    loadProposalsList, 
+    // loadProposalsList, // DEPRECATED - usando componente ProposalsList.astro
     editProposal, 
     previewProposal, 
     deleteProposal, 
@@ -149,5 +149,5 @@ document.addEventListener('DOMContentLoaded', function() {
 if (typeof window !== 'undefined') {
     window.showTab = showTab;
     window.setFormMode = setFormMode;
-    window.loadProposalsList = loadProposalsList;
+    // window.loadProposalsList = loadProposalsList; // DEPRECATED
 }
