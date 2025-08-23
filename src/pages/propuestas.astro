@@ -1,0 +1,149 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Lista de Propuestas">
+  <div class="container py-8 max-w-7xl">
+    <div class="flex justify-between items-center mb-8">
+      <h1>Lista de Propuestas</h1>
+      <a 
+        href="/crear-propuesta" 
+        class="btn btn-primary"
+      >
+        Crear Nueva Propuesta
+      </a>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="form-group">
+          <label for="searchInput" class="form-label">
+            Buscar por nombre o cliente
+          </label>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Buscar propuestas..."
+            class="form-input"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label for="dateFilter" class="form-label">
+            Filtrar por fecha
+          </label>
+          <select
+            id="dateFilter"
+            class="form-select"
+          >
+            <option value="">Todas las fechas</option>
+            <option value="today">Hoy</option>
+            <option value="week">Esta semana</option>
+            <option value="month">Este mes</option>
+            <option value="year">Este año</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="sortBy" class="form-label">
+            Ordenar por
+          </label>
+          <select
+            id="sortBy"
+            class="form-select"
+          >
+            <option value="created_at">Fecha de creación</option>
+            <option value="nombre_proyecto">Nombre del proyecto</option>
+            <option value="cliente_nombre">Nombre del cliente</option>
+            <option value="fecha_propuesta">Fecha de propuesta</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de propuestas -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Proyecto</th>
+              <th>Cliente</th>
+              <th>Empresa</th>
+              <th>Fecha</th>
+              <th>Valor</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="propuestasTableBody">
+            <!-- Las propuestas se cargarán aquí dinámicamente -->
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Estado de carga -->
+      <div id="loadingState" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p class="mt-2 text-gray-600">Cargando propuestas...</p>
+      </div>
+      
+      <!-- Estado vacío -->
+      <div id="emptyState" class="empty-state hidden">
+        <p class="text-gray-600">No se encontraron propuestas</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para ver detalles -->
+  <div id="detailsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Detalles de la Propuesta</h3>
+        <button
+          onclick="closeModal()"
+          class="modal-close"
+        >
+          ×
+        </button>
+      </div>
+      <div id="modalContent" class="space-y-4">
+        <!-- El contenido del modal se cargará aquí -->
+      </div>
+      <div class="flex justify-end mt-6">
+        <button
+          onclick="closeModal()"
+          class="btn btn-secondary"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { initPropuestas } from '../scripts/propuestas.ts';
+    
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', initPropuestas);
+  </script>
+
+  <style>
+    .max-w-7xl {
+      max-width: 80rem;
+    }
+    
+    .space-y-4 > * + * {
+      margin-top: 1rem;
+    }
+    
+    .mt-2 {
+      margin-top: 0.5rem;
+    }
+    
+    .mt-6 {
+      margin-top: 1.5rem;
+    }
+  </style>
+</Layout>

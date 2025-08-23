@@ -1,0 +1,347 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Liebling:wght@400;700&family=Manrope:wght@300;400;600;700;800&display=swap');
+:root {
+            --primary: #08002B; /* Oxford Blue */
+            --accent: #F27E2A; /* Safety Orange */
+            --secondary: #5AB9D5; /* Aero Blue */
+            --pink: #CC3983; /* Pantone Magenta */
+            --light-bg: #F9FAFB;
+            --font-heading: 'Liebling', sans-serif;
+            --font-body: 'Manrope', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-body);
+            color: var(--primary);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+            background-color: #FFFFFF;
+        }
+
+        /* Navegación fija */
+        header {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background: rgba(8, 0, 43, 0.85);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+        }
+        header nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+        }
+        header .brand-logo img {
+            height: 40px;
+            margin-top: 2px;
+        }
+        header .brand-logo a {
+            text-decoration: none;
+        }
+        header ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 24px;
+        }
+        header ul li a {
+            color: #FFFFFF;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+        header ul li a:hover {
+            color: var(--accent);
+        }
+        header ul li a.active {
+            color: var(--accent);
+            position: relative;
+        }
+        header ul li a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background-color: var(--accent);
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--pink) 100%);
+            color: #FFFFFF;
+            padding: 120px 20px 100px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: 48px;
+            margin: 0 0 12px;
+            font-weight: 700;
+        }
+        .hero p {
+            font-size: 18px;
+            margin: 4px 0;
+        }
+        .hero .hero-intro {
+            max-width: 720px;
+            margin: 20px auto 0;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 20px;
+        }
+        .hero .cta {
+            display: inline-block;
+            margin-top: 60px;
+            padding: 14px 32px;
+            background-color: var(--accent);
+            color: #FFFFFF;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .hero .cta:hover {
+            background-color: #d86621;
+        }
+
+        /* Secciones genéricas */
+        section.section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            width: 60px;
+            height: 4px;
+            background-color: var(--accent);
+        }
+        .section.light {
+            background-color: #FFFFFF;
+        }
+        .section.alt {
+            background-color: var(--light-bg);
+        }
+
+        /* Tarjetas de servicios */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+        .service-card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        .service-card .icon {
+            font-size: 32px;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .service-card h3 {
+            margin: 0 0 8px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .service-card p {
+            margin: 0;
+            font-size: 15px;
+            color: #555;
+        }
+
+        /* Línea de tiempo horizontal */
+        .timeline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-top: 20px;
+        }
+        .timeline-item {
+            flex: 1 1 260px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .timeline-item .circle {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .timeline-item h4 {
+            margin: 0 0 8px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .timeline-item p {
+            margin: 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Cartas de propuesta económica */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+        .pricing-card {
+            border: 1px solid #eaeaea;
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            background-color: #FFFFFF;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .pricing-card.featured {
+            border-color: var(--accent);
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        .pricing-card h3 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .pricing-card .price {
+            font-size: 32px;
+            margin: 12px 0;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .pricing-card ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .pricing-card li {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Listas de entregables y contactos */
+        .deliverables-list,
+        .contact-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .deliverables-list li,
+        .contact-list li {
+            margin: 6px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Contenedor de términos */
+        .terms {
+            background-color: var(--light-bg);
+            border-radius: 12px;
+            padding: 32px;
+            font-size: 14px;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        /* Texto de términos - completamente estático */
+        .terms-text {
+            margin: 16px 0;
+            line-height: 1.6;
+            user-select: text;
+            cursor: default;
+            pointer-events: none;
+            -webkit-user-modify: read-only;
+            -moz-user-modify: read-only;
+            user-modify: read-only;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            outline: none !important;
+            border: none !important;
+            background: transparent !important;
+            resize: none !important;
+            overflow: visible !important;
+        }
+
+        /* Texto de aceptación - completamente estático */
+        .acceptance-text {
+            margin: 16px 0;
+            line-height: 1.6;
+            user-select: text;
+            cursor: default;
+            pointer-events: none;
+            -webkit-user-modify: read-only;
+            -moz-user-modify: read-only;
+            user-modify: read-only;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            outline: none !important;
+            border: none !important;
+            background: transparent !important;
+            resize: none !important;
+            overflow: visible !important;
+        }
+
+        /* Sección de aceptación */
+        .accept-section {
+            text-align: center;
+        }
+        .accept-section .cta-accept {
+            display: inline-block;
+            background-color: var(--accent);
+            color: #FFFFFF;
+            padding: 16px 36px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 18px;
+            text-decoration: none;
+            margin-top: 24px;
+            transition: background-color 0.3s ease;
+        }
+        .accept-section .cta-accept:hover {
+            background-color: #d86621;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: #DAD4E3;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        footer p {
+            margin: 4px 0;
+            font-size: 14px;
+        }

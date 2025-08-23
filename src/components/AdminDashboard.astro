@@ -1,0 +1,90 @@
+---
+import '../styles/adminStyle.css';
+import ProposalForm from './ProposalForm.astro';
+---
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🚀 Cloud Pixels - Panel de Administración</h1>
+            <p>Sistema de Gestión de Propuestas Personalizadas</p>
+
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="create">📝 Crear Nueva Propuesta</button>
+            <button class="tab" data-tab="list">📋 Lista de Propuestas</button>
+        </div>
+
+        <!-- Tab: Crear Nueva Propuesta -->
+        <div id="create-tab" class="tab-content active">
+            <ProposalForm mode="create" formId="proposalForm" />
+            
+            <div class="success-message" id="successMessage">
+                <div id="successContent">
+                    ✅ ¡Propuesta generada exitosamente! Se ha guardado en la base de datos.
+                </div>
+                <div id="proposalLinkSection" style="display: none; margin-top: 15px;">
+                    <p style="margin-bottom: 10px;"><strong>🌐 Tu propuesta está lista para ver:</strong></p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <a id="openProposalBtn" href="#" target="_blank" class="btn btn-primary" style="text-decoration: none;">
+                            🚀 Abrir Propuesta Ahora
+                        </a>
+                        <button type="button" class="btn btn-secondary" data-action="copy-proposal-link">
+                            📋 Copiar Enlace
+                        </button>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        <strong>Código de la propuesta:</strong> <code id="proposalCodeDisplay"></code>
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(40, 167, 69, 0.1); border-radius: 6px; border-left: 4px solid #28a745;">
+                        <p style="margin: 0; color: #155724; font-size: 0.9em;">
+                            <strong>⏰ Redirección automática:</strong> Se abrirá la propuesta en una nueva pestaña en <span class="countdown">3</span> segundos...
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="error-message" id="errorMessage">
+                ❌ Error al generar la propuesta. Por favor, verifica los datos e intenta nuevamente.
+            </div>
+        </div>
+
+        <!-- Tab: Lista de Propuestas -->
+        <div id="list-tab" class="tab-content">
+            <div class="form-section">
+                <h3>📋 Propuestas Creadas</h3>
+                <div id="proposalsList" class="proposals-list">
+                    <!-- Las propuestas se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar propuesta -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Editar Propuesta</h2>
+                <span class="close" data-action="close-modal">&times;</span>
+            </div>
+            <div id="editFormContainer">
+                <!-- El formulario de edición se cargará aquí dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para vista previa -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👁️ Vista Previa de la Propuesta</h2>
+                <span class="close" data-action="close-preview-modal">&times;</span>
+            </div>
+            <div id="previewContent" style="max-height: 60vh; overflow-y: auto; border: 1px solid #e1e5e9; padding: 20px; border-radius: 8px;">
+                <!-- El contenido de la propuesta se mostrará aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../scripts/admin-main.js"></script>
+   
+

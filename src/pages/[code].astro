@@ -1,0 +1,371 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { PropuestasService } from "../lib/supabase";
+import "../styles/proposal-page.css";
+
+// Configurar para SSR en lugar de rutas estáticas
+export const prerender = false;
+
+// Props de la página
+const { code } = Astro.params;
+
+console.log('🔍 Accediendo a ruta dinámica con código:', code);
+
+// Obtener la propuesta en tiempo de ejecución
+let propuesta = null;
+let error = null;
+
+try {
+    if (code) {
+        console.log('📡 Buscando propuesta en base de datos...');
+        propuesta = await PropuestasService.getProposalByCode(code);
+        console.log('✅ Propuesta encontrada:', propuesta ? 'SÍ' : 'NO');
+    }
+    
+    if (!propuesta) {
+        console.log('❌ Propuesta no encontrada, redirigiendo a 404');
+        // Si no se encuentra la propuesta, redirigir a 404
+        return Astro.redirect('/404');
+    }
+} catch (err) {
+    console.error('💥 Error obteniendo propuesta:', err);
+    error = err;
+    return Astro.redirect('/404');
+}
+---
+
+<Layout title={`Propuesta - ${propuesta.nombre_proyecto}`}>
+    <header>
+        <nav>
+            <div class="brand-logo">
+                <a href="#home">
+                    <img src="Cloud Pixels-3.png" alt="Logo Cloud Pixels">
+                </a>
+            </div>
+            <ul>
+                <li><a href="#resumen">Resumen</a></li>
+                <li><a href="#sobre">Nosotros</a></li>
+                <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#objetivos">Objetivos</a></li>
+                <li><a href="#entregables">Entregables</a></li>
+                <li><a href="#proceso">Proceso</a></li>
+                <li><a href="#propuesta">Propuesta Económica</a></li>
+                <li><a href="#horarios">Horarios</a></li>
+                <li><a href="#terminos">Términos</a></li>
+                <li><a href="#aceptacion">Aceptar</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero: información del proyecto -->
+    <section class="hero" id="home">
+        <h1 id="project-name">{propuesta.nombre_proyecto}</h1>
+        
+        <p id="client-info">
+            <strong>Para:</strong> {propuesta.cliente_nombre} &nbsp;—&nbsp; {propuesta.cliente_empresa}
+        </p>
+        
+        <p id="proposal-date">
+            <strong>Fecha:</strong> {propuesta.fecha_propuesta ? new Date(propuesta.fecha_propuesta).toLocaleDateString('es-ES') : 'DD/MM/AAAA'}
+        </p>
+        
+        <p class="hero-intro" id="hero-intro-text">
+            {propuesta.texto_introductorio || 'Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.'}
+        </p>
+        <a class="cta" href="#resumen">Explorar</a>
+    </section>
+
+    <!-- Resumen Ejecutivo -->
+    <section class="section light" id="resumen">
+        <h2 class="section-title">Resumen Ejecutivo</h2>
+        <p id="executive-summary">
+            {propuesta.resumen_ejecutivo || 'Esta sección ofrece una visión general del proyecto y debe adaptarse a cada cliente. Describe brevemente los retos que enfrenta la empresa y cómo tus servicios ayudarán a resolverlos.'}
+        </p>
+    </section>
+
+    <!-- ¿Por qué Cloud Pixels? -->
+    <section class="section alt" id="sobre">
+        <h2 class="section-title">¿Por qué Cloud&nbsp;Pixels?</h2>
+        <p id="company-description">
+            {propuesta.descripcion_empresa || 'Con más de 9&nbsp;años de experiencia, Cloud Pixels es un equipo global con oficinas en Honduras, Estados&nbsp;Unidos, Estonia y Panamá. Combinamos talento de diseño y desarrollo de todo el mundo para crear soluciones digitales excepcionales y escalables.'}
+        </p>
+    </section>
+
+    <!-- Servicios -->
+    <section class="section light" id="servicios">
+        <h2 class="section-title">Servicios</h2>
+        <div class="services-grid" id="services-grid">
+            {propuesta.servicios_seleccionados && Array.isArray(propuesta.servicios_seleccionados) && propuesta.servicios_seleccionados.includes('Website Design') && (
+                <div class="service-card">
+                    <div class="icon">🖥️</div>
+                    <h3>Website Design</h3>
+                    <p>Diseño completo y responsive para tu sitio web, optimizado para conversión y experiencia de usuario.</p>
+                </div>
+            )}
+            {propuesta.servicios_seleccionados && Array.isArray(propuesta.servicios_seleccionados) && propuesta.servicios_seleccionados.includes('Landing Page') && (
+                <div class="service-card">
+                    <div class="icon">📄</div>
+                    <h3>Landing Page</h3>
+                    <p>Páginas de aterrizaje enfocadas en conversiones, integradas con campañas de marketing.</p>
+                </div>
+            )}
+            {propuesta.servicios_seleccionados && Array.isArray(propuesta.servicios_seleccionados) && propuesta.servicios_seleccionados.includes('Logo & Branding') && (
+                <div class="service-card">
+                    <div class="icon">🎨</div>
+                    <h3>Logo & Branding</h3>
+                    <p>Desarrollo de identidad visual, logos e imagen corporativa para fortalecer tu marca.</p>
+                </div>
+            )}
+            {propuesta.servicios_seleccionados && Array.isArray(propuesta.servicios_seleccionados) && propuesta.servicios_seleccionados.includes('Email Marketing') && (
+                <div class="service-card">
+                    <div class="icon">✉️</div>
+                    <h3>Email Marketing</h3>
+                    <p>Diseño y automatización de campañas de email marketing efectivas.</p>
+                </div>
+            )}
+            {propuesta.servicios_seleccionados && Array.isArray(propuesta.servicios_seleccionados) && propuesta.servicios_seleccionados.includes('SEO Review & Consulting') && (
+                <div class="service-card">
+                    <div class="icon">🔍</div>
+                    <h3>SEO Review & Consulting</h3>
+                    <p>Análisis SEO detallado y recomendaciones para mejorar tu posicionamiento en buscadores.</p>
+                </div>
+            )}
+            {propuesta.servicios_seleccionados && Array.isArray(propuesta.servicios_seleccionados) && propuesta.servicios_seleccionados.includes('Ecommerce Site') && (
+                <div class="service-card">
+                    <div class="icon">🛒</div>
+                    <h3>Ecommerce Site</h3>
+                    <p>Desarrollo e integración de tiendas en línea con pasarelas de pago y gestión de productos.</p>
+                </div>
+            )}
+            {(!propuesta.servicios_seleccionados || !Array.isArray(propuesta.servicios_seleccionados) || propuesta.servicios_seleccionados.length === 0) && (
+                <>
+                    <div class="service-card">
+                        <div class="icon">🖥️</div>
+                        <h3>Website Design</h3>
+                        <p>Diseño completo y responsive para tu sitio web, optimizado para conversión y experiencia de usuario.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="icon">📄</div>
+                        <h3>Landing Page</h3>
+                        <p>Páginas de aterrizaje enfocadas en conversiones, integradas con campañas de marketing.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="icon">🎨</div>
+                        <h3>Logo & Branding</h3>
+                        <p>Desarrollo de identidad visual, logos e imagen corporativa para fortalecer tu marca.</p>
+                    </div>
+                </>
+            )}
+        </div>
+    </section>
+
+    <!-- Objetivos y alcance -->
+    <section class="section alt" id="objetivos">
+        <h2 class="section-title">Objetivos &amp; Alcance</h2>
+        <p id="objectives-scope">
+            {propuesta.objetivos_alcance || 'Describe en esta sección los objetivos específicos del proyecto y el alcance del trabajo. Por ejemplo, puedes mencionar la mejora de la presencia digital, el aumento de conversiones o la expansión del alcance de la marca.'}
+        </p>
+    </section>
+
+    <!-- Entregables -->
+    <section class="section light" id="entregables">
+        <h2 class="section-title">Entregables</h2>
+        <ul class="deliverables-list" id="deliverables-list">
+            {propuesta.entregables && Array.isArray(propuesta.entregables) ? 
+                propuesta.entregables.map((entregable: string) => <li>{entregable}</li>) :
+                // Entregables por defecto
+                <>
+                    <li>Diseño UI/UX completo para desktop y mobile</li>
+                    <li>Desarrollo del sitio web e integraciones necesarias</li>
+                    <li>Integración de ecommerce y pasarela de pago</li>
+                    <li>Manual de marca y activos visuales</li>
+                    <li>Capacitación en video de 30&nbsp;minutos para el equipo</li>
+                </>
+            }
+        </ul>
+    </section>
+
+    <!-- Proceso & Timeline -->
+    <section class="section alt" id="proceso">
+        <h2 class="section-title">Proceso &amp; Timeline</h2>
+        <div class="timeline" id="process-timeline">
+            {propuesta.proceso_timeline && Array.isArray(propuesta.proceso_timeline) ? 
+                propuesta.proceso_timeline.map((fase: { title: string; duration: string; description: string }) => (
+                    <div class="timeline-item">
+                        <div class="circle"></div>
+                        <h4>{fase.title}<br><small>({fase.duration})</small></h4>
+                        <p>{fase.description}</p>
+                    </div>
+                )) :
+                // Timeline por defecto
+                <>
+                    <div class="timeline-item">
+                        <div class="circle"></div>
+                        <h4>Fase&nbsp;1: Brief &amp; Investigación<br><small>(1 semana)</small></h4>
+                        <p>Recolección de requisitos, análisis de mercado y definición del alcance del proyecto.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="circle"></div>
+                        <h4>Fase&nbsp;2: Diseño UI/UX<br><small>(1‑2 semanas)</small></h4>
+                        <p>Creación de wireframes y prototipos visuales, iteraciones según tu feedback.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="circle"></div>
+                        <h4>Fase&nbsp;3: Desarrollo &amp; Integraciones<br><small>(2‑3 semanas)</small></h4>
+                        <p>Implementación técnica del sitio, carga de contenido y configuraciones.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="circle"></div>
+                        <h4>Fase&nbsp;4: Pruebas &amp; Lanzamiento<br><small>(1 semana)</small></h4>
+                        <p>Revisión final, pruebas de calidad y puesta en línea del proyecto.</p>
+                    </div>
+                </>
+            }
+        </div>
+    </section>
+
+    <!-- Propuesta económica -->
+    <section class="section light" id="propuesta">
+        <h2 class="section-title">Propuesta Económica</h2>
+        <p>La inversión total para este proyecto es:</p>
+        <div class="pricing-grid">
+            <div class="pricing-card featured">
+                <h3>Valor del Proyecto</h3>
+                <div class="price" id="project-price">{propuesta.valor_proyecto || '$X,XXX'}</div>
+                <ul id="payment-terms">
+                    {propuesta.terminos_pago ? 
+                        propuesta.terminos_pago.split('\n').map((termino: string) => <li>{termino}</li>) :
+                        <>
+                            <li>Incluye todos los servicios y entregables definidos en esta propuesta</li>
+                            <li>Pago inicial del 50% al aceptar la propuesta</li>
+                            <li>Saldo restante al finalizar el proyecto</li>
+                        </>
+                    }
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Horarios de atención y canales de comunicación -->
+    <section class="section alt" id="horarios">
+        <h2 class="section-title">Horarios de Atención &amp; Canales de Comunicación</h2>
+        <p id="business-hours">
+            {propuesta.horarios_atencion || 'Nuestro equipo está disponible de lunes a viernes de 9:00&nbsp;a.m. a 6:00&nbsp;p.m. (aplican días feriados). Para consultas fuera de este horario, responderemos al siguiente día laboral.'}
+        </p>
+        <p>Nos puedes contactar a través de los siguientes canales:</p>
+        <ul class="contact-list" id="contact-info">
+            <li><strong>Email:</strong> <span id="contact-email">{propuesta.contacto_email || 'tu.correo@cloudpixels.com'}</span></li>
+            <li><strong>WhatsApp:</strong> <span id="contact-whatsapp">{propuesta.contacto_whatsapp || '+XX&nbsp;XXX&nbsp;XXX&nbsp;XXXX'}</span></li>
+        </ul>
+    </section>
+
+    <!-- Términos y condiciones -->
+    <section class="section light" id="terminos">
+        <h2 class="section-title">Términos &amp; Condiciones</h2>
+        <div class="terms">
+            <div class="terms-text" id="terms-conditions">
+                {propuesta.terminos_condiciones || 'Al aceptar esta propuesta, el cliente se compromete a abonar un anticipo del 50% para iniciar el proyecto. El saldo restante se pagará al finalizar, antes del lanzamiento.'}
+            </div>
+            <div class="terms-text" id="terms-validity">
+                {propuesta.terminos_validez || 'Esta propuesta es válida durante 30&nbsp;días a partir de la fecha de emisión. Los servicios de mantenimiento, hosting o funcionalidades adicionales no mencionados aquí se considerarán extras opcionales.'}
+            </div>
+        </div>
+    </section>
+
+    <!-- Aceptación y próximos pasos -->
+    <section class="section alt accept-section" id="aceptacion">
+        <h2 class="section-title">Aceptación &amp; Próximos Pasos</h2>
+        <div class="acceptance-text" id="acceptance-text">
+            {propuesta.texto_aceptacion || '¿Listo para comenzar? Haz clic en el botón de abajo para aceptar la propuesta. Podrás firmar digitalmente y realizar el pago inicial.'}
+        </div>
+        <a class="cta-accept" href="#">Aceptar Propuesta</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Cloud Pixels. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Función para actualizar la navegación activa
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('header nav ul li a');
+            
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = (section as HTMLElement).offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id') || '';
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        // Función para asegurar que los elementos de términos sean estáticos
+        function ensureTermsAreStatic() {
+            const termsElements = document.querySelectorAll('.terms-text, .acceptance-text');
+            
+            termsElements.forEach(element => {
+                // Remover cualquier atributo de edición
+                element.removeAttribute('contenteditable');
+                element.removeAttribute('spellcheck');
+                element.removeAttribute('autocomplete');
+                
+                // Asegurar que no sea un campo de entrada
+                if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+                    const div = document.createElement('div');
+                    div.className = element.className;
+                    div.id = element.id;
+                    div.innerHTML = element.value || element.innerHTML;
+                    element.parentNode?.replaceChild(div, element);
+                }
+                
+                // Aplicar estilos de solo lectura
+                (element as HTMLElement).style.userSelect = 'text';
+                (element as HTMLElement).style.cursor = 'default';
+                (element as HTMLElement).style.pointerEvents = 'none';
+                (element as HTMLElement).style.outline = 'none';
+                (element as HTMLElement).style.border = 'none';
+                (element as HTMLElement).style.background = 'transparent';
+                (element as HTMLElement).style.resize = 'none';
+            });
+        }
+        
+        // Ejecutar al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            updateActiveNav();
+            ensureTermsAreStatic();
+        });
+        
+        // Ejecutar al hacer scroll
+        window.addEventListener('scroll', updateActiveNav);
+        
+        // Ejecutar al hacer clic en los enlaces de navegación
+        document.querySelectorAll('header nav ul li a').forEach(link => {
+            link.addEventListener('click', function(this: HTMLElement, e: Event) {
+                // Remover clase active de todos los enlaces
+                document.querySelectorAll('header nav ul li a').forEach(l => l.classList.remove('active'));
+                // Agregar clase active al enlace clickeado
+                this.classList.add('active');
+            });
+        });
+        
+        // Observar cambios en el DOM para asegurar que los elementos permanezcan estáticos
+        const observer = new MutationObserver(ensureTermsAreStatic);
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['contenteditable', 'spellcheck', 'autocomplete']
+        });
+    </script>
+</Layout>
