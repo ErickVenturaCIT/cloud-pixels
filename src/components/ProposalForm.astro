@@ -15,24 +15,24 @@ const { mode, proposalData, formId } = Astro.props;
         <div class="form-row">
             <div class="form-group">
                 <label for={`${formId}-projectName`}>Nombre del Proyecto *</label>
-                <input type="text" id={`${formId}-projectName`} name="projectName" required 
+                <input type="text" id={`${formId}-projectName`} name="nombre_proyecto" required 
                        value={proposalData?.nombre_proyecto || ''}>
             </div>
             <div class="form-group">
                 <label for={`${formId}-proposalDate`}>Fecha de Propuesta *</label>
-                <input type="date" id={`${formId}-proposalDate`} name="proposalDate" required 
+                <input type="date" id={`${formId}-proposalDate`} name="fecha_propuesta" required 
                        value={proposalData?.fecha_propuesta || ''}>
             </div>
         </div>
         <div class="form-row">
             <div class="form-group">
                 <label for={`${formId}-clientName`}>Nombre del Cliente *</label>
-                <input type="text" id={`${formId}-clientName`} name="clientName" required 
+                <input type="text" id={`${formId}-clientName`} name="cliente_nombre" required 
                        value={proposalData?.cliente_nombre || ''}>
             </div>
             <div class="form-group">
                 <label for={`${formId}-clientCompany`}>Empresa del Cliente *</label>
-                <input type="text" id={`${formId}-clientCompany`} name="clientCompany" required 
+                <input type="text" id={`${formId}-clientCompany`} name="cliente_empresa" required 
                        value={proposalData?.cliente_empresa || ''}>
             </div>
         </div>
@@ -43,7 +43,7 @@ const { mode, proposalData, formId } = Astro.props;
         <h3>📊 Resumen Ejecutivo</h3>
         <div class="form-group">
             <label for={`${formId}-executiveSummary`}>Descripción del proyecto y propuesta de valor *</label>
-            <textarea id={`${formId}-executiveSummary`} name="executiveSummary" required>{proposalData?.resumen_ejecutivo || ''}</textarea>
+            <textarea id={`${formId}-executiveSummary`} name="resumen_ejecutivo" required>{proposalData?.resumen_ejecutivo || ''}</textarea>
         </div>
     </div>
 
@@ -52,7 +52,7 @@ const { mode, proposalData, formId } = Astro.props;
         <h3>🎯 Objetivos & Alcance</h3>
         <div class="form-group">
             <label for={`${formId}-objectivesScope`}>Objetivos específicos y alcance del trabajo *</label>
-            <textarea id={`${formId}-objectivesScope`} name="objectivesScope" required>{proposalData?.objetivos_alcance || ''}</textarea>
+            <textarea id={`${formId}-objectivesScope`} name="objetivos_alcance" required>{proposalData?.objetivos_alcance || ''}</textarea>
         </div>
     </div>
 
@@ -61,32 +61,32 @@ const { mode, proposalData, formId } = Astro.props;
         <h3>🛠️ Servicios Incluidos</h3>
         <div class="checkbox-group">
             <div class="checkbox-item">
-                <input type="checkbox" id={`${formId}-service1`} name="services" value="Website Design" 
+                <input type="checkbox" id={`${formId}-service1`} name="servicios" value="Website Design" 
                        checked={proposalData?.servicios_seleccionados?.includes('Website Design') || false}>
                 <label for={`${formId}-service1`}>Website Design</label>
             </div>
             <div class="checkbox-item">
-                <input type="checkbox" id={`${formId}-service2`} name="services" value="Landing Page" 
+                <input type="checkbox" id={`${formId}-service2`} name="servicios" value="Landing Page" 
                        checked={proposalData?.servicios_seleccionados?.includes('Landing Page') || false}>
                 <label for={`${formId}-service2`}>Landing Page</label>
             </div>
             <div class="checkbox-item">
-                <input type="checkbox" id={`${formId}-service3`} name="services" value="Logo & Branding" 
+                <input type="checkbox" id={`${formId}-service3`} name="servicios" value="Logo & Branding" 
                        checked={proposalData?.servicios_seleccionados?.includes('Logo & Branding') || false}>
                 <label for={`${formId}-service3`}>Logo & Branding</label>
             </div>
             <div class="checkbox-item">
-                <input type="checkbox" id={`${formId}-service4`} name="services" value="Email Marketing" 
+                <input type="checkbox" id={`${formId}-service4`} name="servicios" value="Email Marketing" 
                        checked={proposalData?.servicios_seleccionados?.includes('Email Marketing') || false}>
                 <label for={`${formId}-service4`}>Email Marketing</label>
             </div>
             <div class="checkbox-item">
-                <input type="checkbox" id={`${formId}-service5`} name="services" value="SEO Review & Consulting" 
+                <input type="checkbox" id={`${formId}-service5`} name="servicios" value="SEO Review & Consulting" 
                        checked={proposalData?.servicios_seleccionados?.includes('SEO Review & Consulting') || false}>
                 <label for={`${formId}-service5`}>SEO Review & Consulting</label>
             </div>
             <div class="checkbox-item">
-                <input type="checkbox" id={`${formId}-service6`} name="services" value="Ecommerce Site" 
+                <input type="checkbox" id={`${formId}-service6`} name="servicios" value="Ecommerce Site" 
                        checked={proposalData?.servicios_seleccionados?.includes('Ecommerce Site') || false}>
                 <label for={`${formId}-service6`}>Ecommerce Site</label>
             </div>
@@ -97,7 +97,7 @@ const { mode, proposalData, formId } = Astro.props;
     <div class="form-section">
         <h3>📦 Entregables</h3>
         <div class="deliverables-container">
-            <div id={`${formId}-deliverablesList`} class="deliverables-list">
+            <div id="entregablesContainer" class="deliverables-list">
                 {proposalData?.entregables && Array.isArray(proposalData.entregables) ? 
                     proposalData.entregables.map((entregable: string, index: number) => (
                         <div class="deliverable-item">
@@ -121,13 +121,13 @@ const { mode, proposalData, formId } = Astro.props;
         <div class="form-row">
             <div class="form-group">
                 <label for={`${formId}-projectValue`}>Valor del Proyecto *</label>
-                <input type="text" id={`${formId}-projectValue`} name="projectValue" placeholder="$X,XXX" required 
+                <input type="text" id={`${formId}-projectValue`} name="valor_proyecto" placeholder="$X,XXX" required 
                        value={proposalData?.valor_proyecto || ''}>
             </div>
         </div>
         <div class="form-group">
             <label for={`${formId}-paymentTerms`}>Condiciones de Pago *</label>
-            <textarea id={`${formId}-paymentTerms`} name="paymentTerms" placeholder="• Pago inicial del 50% al aceptar la propuesta&#10;• Saldo restante al finalizar el proyecto&#10;• Incluye todos los servicios y entregables definidos" required>{proposalData?.terminos_pago || ''}</textarea>
+            <textarea id={`${formId}-paymentTerms`} name="terminos_pago" placeholder="• Pago inicial del 50% al aceptar la propuesta&#10;• Saldo restante al finalizar el proyecto&#10;• Incluye todos los servicios y entregables definidos" required>{proposalData?.terminos_pago || ''}</textarea>
         </div>
     </div>
 
@@ -137,12 +137,12 @@ const { mode, proposalData, formId } = Astro.props;
         <div class="form-row">
             <div class="form-group">
                 <label for={`${formId}-contactEmail`}>Email de Contacto</label>
-                <input type="email" id={`${formId}-contactEmail`} name="contactEmail" placeholder="tu.correo@cloudpixels.com" 
+                <input type="email" id={`${formId}-contactEmail`} name="contacto_email" placeholder="tu.correo@cloudpixels.com" 
                        value={proposalData?.contacto_email || ''}>
             </div>
             <div class="form-group">
                 <label for={`${formId}-contactWhatsApp`}>WhatsApp</label>
-                <input type="text" id={`${formId}-contactWhatsApp`} name="contactWhatsApp" placeholder="+XX XXX XXX XXXX" 
+                <input type="text" id={`${formId}-contactWhatsApp`} name="contacto_whatsapp" placeholder="+XX XXX XXX XXXX" 
                        value={proposalData?.contacto_whatsapp || ''}>
             </div>
         </div>
@@ -153,7 +153,7 @@ const { mode, proposalData, formId } = Astro.props;
         <h3>📝 Texto Introductorio</h3>
         <div class="form-group">
             <label for={`${formId}-introText`}>Texto introductorio de la propuesta</label>
-            <textarea id={`${formId}-introText`} name="introText" placeholder="Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.">{proposalData?.texto_introductorio || 'Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.'}</textarea>
+            <textarea id={`${formId}-introText`} name="texto_introductorio" placeholder="Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.">{proposalData?.texto_introductorio || 'Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.'}</textarea>
         </div>
     </div>
 
@@ -162,7 +162,7 @@ const { mode, proposalData, formId } = Astro.props;
         <h3>🏢 Descripción de la Empresa</h3>
         <div class="form-group">
             <label for={`${formId}-companyDescription`}>Descripción de Cloud Pixels</label>
-            <textarea id={`${formId}-companyDescription`} name="companyDescription" placeholder="Con más de 9 años de experiencia, Cloud Pixels es un equipo global...">{proposalData?.descripcion_empresa || 'Con más de 9 años de experiencia, Cloud Pixels es un equipo global con oficinas en Honduras, Estados Unidos, Estonia y Panamá. Combinamos talento de diseño y desarrollo de todo el mundo para crear soluciones digitales excepcionales y escalables.'}</textarea>
+            <textarea id={`${formId}-companyDescription`} name="descripcion_empresa" placeholder="Con más de 9 años de experiencia, Cloud Pixels es un equipo global...">{proposalData?.descripcion_empresa || 'Con más de 9 años de experiencia, Cloud Pixels es un equipo global con oficinas en Honduras, Estados Unidos, Estonia y Panamá. Combinamos talento de diseño y desarrollo de todo el mundo para crear soluciones digitales excepcionales y escalables.'}</textarea>
         </div>
     </div>
 
@@ -171,7 +171,7 @@ const { mode, proposalData, formId } = Astro.props;
         <h3>🕒 Horarios de Atención</h3>
         <div class="form-group">
             <label for={`${formId}-attentionHours`}>Horarios de atención al cliente</label>
-            <textarea id={`${formId}-attentionHours`} name="attentionHours" placeholder="Nuestro equipo está disponible...">{proposalData?.horarios_atencion || 'Nuestro equipo está disponible de lunes a viernes de 9:00 a.m. a 6:00 p.m. (aplican días feriados). Para consultas fuera de este horario, responderemos al siguiente día laboral.'}</textarea>
+            <textarea id={`${formId}-attentionHours`} name="horarios_atencion" placeholder="Nuestro equipo está disponible...">{proposalData?.horarios_atencion || 'Nuestro equipo está disponible de lunes a viernes de 9:00 a.m. a 6:00 p.m. (aplican días feriados). Para consultas fuera de este horario, responderemos al siguiente día laboral.'}</textarea>
         </div>
     </div>
 
@@ -180,15 +180,15 @@ const { mode, proposalData, formId } = Astro.props;
         <h3>📋 Términos y Condiciones</h3>
         <div class="form-group">
             <label for={`${formId}-termsConditions`}>Términos y condiciones de la propuesta</label>
-            <textarea id={`${formId}-termsConditions`} name="termsConditions" placeholder="Al aceptar esta propuesta...">{proposalData?.terminos_condiciones || 'Al aceptar esta propuesta, el cliente se compromete a abonar un anticipo del 50% para iniciar el proyecto. El saldo restante se pagará al finalizar, antes del lanzamiento.'}</textarea>
+            <textarea id={`${formId}-termsConditions`} name="terminos_condiciones" placeholder="Al aceptar esta propuesta...">{proposalData?.terminos_condiciones || 'Al aceptar esta propuesta, el cliente se compromete a abonar un anticipo del 50% para iniciar el proyecto. El saldo restante se pagará al finalizar, antes del lanzamiento.'}</textarea>
         </div>
         <div class="form-group">
             <label for={`${formId}-validityTerms`}>Términos de validez</label>
-            <textarea id={`${formId}-validityTerms`} name="validityTerms" placeholder="Esta propuesta es válida...">{proposalData?.terminos_validez || 'Esta propuesta es válida durante 30 días a partir de la fecha de emisión. Los servicios de mantenimiento, hosting o funcionalidades adicionales no mencionados aquí se considerarán extras opcionales.'}</textarea>
+            <textarea id={`${formId}-validityTerms`} name="terminos_validez" placeholder="Esta propuesta es válida...">{proposalData?.terminos_validez || 'Esta propuesta es válida durante 30 días a partir de la fecha de emisión. Los servicios de mantenimiento, hosting o funcionalidades adicionales no mencionados aquí se considerarán extras opcionales.'}</textarea>
         </div>
         <div class="form-group">
             <label for={`${formId}-acceptanceText`}>Texto de aceptación</label>
-            <textarea id={`${formId}-acceptanceText`} name="acceptanceText" placeholder="¿Listo para comenzar?">{proposalData?.texto_aceptacion || '¿Listo para comenzar? Haz clic en el botón de abajo para aceptar la propuesta. Podrás firmar digitalmente y realizar el pago inicial.'}</textarea>
+            <textarea id={`${formId}-acceptanceText`} name="texto_aceptacion" placeholder="¿Listo para comenzar?">{proposalData?.texto_aceptacion || '¿Listo para comenzar? Haz clic en el botón de abajo para aceptar la propuesta. Podrás firmar digitalmente y realizar el pago inicial.'}</textarea>
         </div>
     </div>
 
