@@ -22,6 +22,12 @@ const { title } = Astro.props;
 		
 		<!-- CSS Global -->
 		<link rel="stylesheet" href="/src/styles/global.css">
+		
+		<!-- Supabase SDK -->
+		<script is:inline src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+		
+		<!-- Cliente de Supabase Global -->
+		<script is:inline src="/scripts/supabase-client.js"></script>
 	</head>
 	<body>
 		<slot />

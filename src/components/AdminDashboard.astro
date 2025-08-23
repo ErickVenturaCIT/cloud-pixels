@@ -4,106 +4,710 @@ import ProposalForm from './ProposalForm.astro';
 import ProposalsList from './ProposalsList.astro';
 ---
 
-    <div class="admin-container">
-        <div class="admin-header">
-            <h1>🚀 Cloud Pixels - Panel de Administración</h1>
-            <p>Sistema de Gestión de Propuestas Personalizadas</p>
-            <div style="margin-top: 15px; padding: 15px; background: rgba(242, 126, 42, 0.1); border-radius: 8px; border-left: 4px solid #F27E2A;">
-                <p style="margin: 0; color: #08002B; font-size: 0.95em;">
-                    <strong>💡 ¿Cómo funciona?</strong> Al generar una propuesta, se crea un enlace único que se abre automáticamente. 
-                    Los datos se cargan en tiempo real desde la base de datos, por lo que los cambios se reflejan inmediatamente.
-                </p>
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>🚀 Cloud Pixels - Panel de Administración</h1>
+        <p>Sistema de Gestión de Propuestas Personalizadas</p>
+        <div style="margin-top: 15px; padding: 15px; background: rgba(242, 126, 42, 0.1); border-radius: 8px; border-left: 4px solid #F27E2A;">
+            <p style="margin: 0; color: #08002B; font-size: 0.95em;">
+                <strong>💡 ¿Cómo funciona?</strong> Al generar una propuesta, se crea un enlace único que se abre automáticamente. 
+                Los datos se cargan en tiempo real desde la base de datos, por lo que los cambios se reflejan inmediatamente.
+            </p>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" data-tab="create">📝 Crear Nueva Propuesta</button>
+        <button class="tab" data-tab="list">📋 Lista de Propuestas</button>
+    </div>
+
+    <!-- Tab: Crear Nueva Propuesta -->
+    <div id="create-tab" class="tab-content active">
+        <ProposalForm mode="create" formId="proposalForm" />
+        
+        <div class="success-message" id="successMessage">
+            <div id="successContent">
+                ✅ ¡Propuesta generada exitosamente! Se ha guardado en la base de datos.
+            </div>
+            <div id="proposalLinkSection" style="display: none; margin-top: 15px;">
+                <p style="margin-bottom: 10px;"><strong>🌐 Tu propuesta está lista para ver:</strong></p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    <a id="openProposalBtn" href="#" target="_blank" class="btn btn-primary" style="text-decoration: none;">
+                        🚀 Abrir Propuesta Ahora
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-action="copy-proposal-link">
+                        📋 Copiar Enlace
+                    </button>
+                </div>
+                <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                    <strong>Código de la propuesta:</strong> <code id="proposalCodeDisplay"></code>
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: rgba(40, 167, 69, 0.1); border-radius: 6px; border-left: 4px solid #28a745;">
+                    <p style="margin: 0; color: #155724; font-size: 0.9em;">
+                        <strong>⏰ Redirección automática:</strong> Se abrirá la propuesta en una nueva pestaña en <span class="countdown">3</span> segundos...
+                    </p>
+                </div>
             </div>
         </div>
-
-        <div class="tabs">
-            <button class="tab active" data-tab="create">📝 Crear Nueva Propuesta</button>
-            <button class="tab" data-tab="list">📋 Lista de Propuestas</button>
+        <div class="error-message" id="errorMessage">
+            ❌ Error al generar la propuesta. Por favor, verifica los datos e intenta nuevamente.
         </div>
+        
+        <!-- Panel de Logs en Tiempo Real -->
+        <div class="logs-panel" id="logsPanel">
+            <div class="logs-header">
+                <h4>📊 Logs del Sistema</h4>
+                <button type="button" class="btn btn-small btn-secondary" data-action="clear-logs">🧹 Limpiar</button>
+                <button type="button" class="btn btn-small btn-info" data-action="export-logs">📥 Exportar</button>
+            </div>
+            <div class="logs-content" id="logsContent">
+                <div class="log-entry log-info">
+                    <span class="log-time">[Sistema]</span>
+                    <span class="log-message">Panel de logs inicializado. Los logs se mostrarán aquí en tiempo real.</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <!-- Tab: Crear Nueva Propuesta -->
-        <div id="create-tab" class="tab-content active">
-            <ProposalForm mode="create" formId="proposalForm" />
+    <!-- Tab: Lista de Propuestas -->
+    <div id="list-tab" class="tab-content">
+        <div class="form-section">
+            <h3>📋 Propuestas Creadas</h3>
+            <ProposalsList />
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar propuesta -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>✏️ Editar Propuesta</h2>
+            <span class="close" data-action="close-modal">&times;</span>
+        </div>
+        <div id="editFormContainer">
+            <!-- El formulario de edición se cargará aquí dinámicamente -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal para vista previa -->
+<div id="previewModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>👁️ Vista Previa de la Propuesta</h2>
+            <span class="close" data-action="close-preview-modal">&times;</span>
+        </div>
+        <div id="previewContent" style="max-height: 60vh; overflow-y: auto; border: 1px solid #e1e5e9; padding: 20px; border-radius: 8px;">
+            <!-- El contenido de la propuesta se mostrará aquí -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables globales
+let isEditMode = false;
+let currentEditId = null;
+let proposalLink = '';
+
+// Funciones de UI
+function showLog(message, type = 'info') {
+    const logsContent = document.getElementById('logsContent');
+    if (!logsContent) return;
+    
+    const timestamp = new Date().toLocaleTimeString('es-ES');
+    const logEntry = document.createElement('div');
+    logEntry.className = `log-entry log-${type}`;
+    
+    logEntry.innerHTML = `
+        <span class="log-time">[${timestamp}]</span>
+        <span class="log-message">${message}</span>
+    `;
+    
+    logsContent.appendChild(logEntry);
+    logsContent.scrollTop = logsContent.scrollHeight;
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    if (errorDiv) {
+        errorDiv.textContent = `❌ ${message}`;
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    }
+    showLog(message, 'error');
+}
+
+function showSuccess(message) {
+    const successDiv = document.getElementById('successMessage');
+    if (successDiv) {
+        successDiv.style.display = 'block';
+        document.getElementById('successContent').textContent = `✅ ${message}`;
+    }
+    showLog(message, 'success');
+}
+
+function showTab(tabName) {
+    // Ocultar todos los contenidos de pestañas
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Quitar clase active de todas las pestañas
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Mostrar el contenido seleccionado
+    const selectedContent = document.getElementById(`${tabName}-tab`);
+    if (selectedContent) {
+        selectedContent.classList.add('active');
+    }
+    
+    // Activar la pestaña seleccionada
+    const selectedTab = document.querySelector(`[data-tab="${tabName}"]`);
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+    
+    showLog(`📑 Cambiando a pestaña: ${tabName === 'create' ? 'Crear Propuesta' : 'Lista de Propuestas'}`, 'info');
+}
+
+function clearLogs() {
+    const logsContent = document.getElementById('logsContent');
+    if (logsContent) {
+        logsContent.innerHTML = `
+            <div class="log-entry log-info">
+                <span class="log-time">[Sistema]</span>
+                <span class="log-message">Logs limpiados. El sistema continúa registrando eventos.</span>
+            </div>
+        `;
+    }
+}
+
+function exportLogs() {
+    const logsContent = document.getElementById('logsContent');
+    if (!logsContent) return;
+    
+    const logs = Array.from(logsContent.querySelectorAll('.log-entry')).map(entry => {
+        const time = entry.querySelector('.log-time')?.textContent || '';
+        const message = entry.querySelector('.log-message')?.textContent || '';
+        return `${time} ${message}`;
+    }).join('\n');
+    
+    const blob = new Blob([logs], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cloud-pixels-logs-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showLog('📥 Logs exportados exitosamente', 'success');
+}
+
+function closeModal() {
+    const modal = document.getElementById('editModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    // Resetear el modo de edición
+    isEditMode = false;
+    currentEditId = null;
+}
+
+function closePreviewModal() {
+    const modal = document.getElementById('previewModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Funciones de manejo de formulario
+function setFormMode(mode, proposalData = null) {
+    isEditMode = mode === 'edit';
+    currentEditId = proposalData?.id || null;
+    
+    if (mode === 'edit' && proposalData) {
+        // Llenar el formulario con los datos de la propuesta
+        fillFormWithData(proposalData);
+        
+        // Cambiar a la pestaña de crear/editar
+        showTab('create');
+        
+        // Mostrar botón de cancelar edición
+        showCancelEditButton();
+        
+        // Scroll al formulario
+        document.getElementById('create-tab')?.scrollIntoView({ behavior: 'smooth' });
+        
+        showLog(`✏️ Editando propuesta: ${proposalData.codigo_propuesta}`, 'info');
+    } else {
+        // Modo crear - limpiar formulario
+        document.getElementById('proposalForm')?.reset();
+        hideCancelEditButton();
+    }
+}
+
+function fillFormWithData(data) {
+    const form = document.getElementById('proposalForm');
+    if (!form) return;
+    
+    // Llenar campos simples
+    const simpleFields = [
+        'nombre_proyecto', 'cliente_nombre', 'cliente_empresa',
+        'texto_introductorio', 'resumen_ejecutivo', 'descripcion_empresa',
+        'objetivos_alcance', 'valor_proyecto', 'terminos_pago',
+        'contacto_email', 'contacto_whatsapp', 'horarios_atencion',
+        'terminos_condiciones', 'terminos_validez', 'texto_aceptacion'
+    ];
+    
+    simpleFields.forEach(field => {
+        const input = form.querySelector(`[name="${field}"]`);
+        if (input && data[field]) {
+            input.value = data[field];
+        }
+    });
+    
+    // Manejar servicios seleccionados
+    if (data.servicios_seleccionados) {
+        const servicios = Array.isArray(data.servicios_seleccionados) 
+            ? data.servicios_seleccionados 
+            : JSON.parse(data.servicios_seleccionados || '[]');
+        
+        document.querySelectorAll('input[name="servicios"]').forEach(checkbox => {
+            checkbox.checked = servicios.includes(checkbox.value);
+        });
+    }
+    
+    // Manejar entregables
+    if (data.entregables) {
+        const entregables = Array.isArray(data.entregables) 
+            ? data.entregables 
+            : JSON.parse(data.entregables || '[]');
+        
+        const entregablesContainer = document.getElementById('entregablesContainer');
+        if (entregablesContainer) {
+            entregablesContainer.innerHTML = '';
+            entregables.forEach(entregable => {
+                addDeliverable(entregable);
+            });
+        }
+    }
+}
+
+function showCancelEditButton() {
+    const existingBtn = document.querySelector('[data-action="cancel-edit"]');
+    if (!existingBtn) {
+        const submitBtn = document.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.setAttribute('data-action', 'cancel-edit');
+            cancelBtn.innerHTML = '❌ Cancelar Edición';
+            cancelBtn.style.marginLeft = '10px';
+            submitBtn.parentNode.insertBefore(cancelBtn, submitBtn.nextSibling);
+        }
+    }
+}
+
+function hideCancelEditButton() {
+    const cancelBtn = document.querySelector('[data-action="cancel-edit"]');
+    if (cancelBtn) {
+        cancelBtn.remove();
+    }
+}
+
+function cancelEdit() {
+    setFormMode('create');
+    document.getElementById('proposalForm')?.reset();
+    showLog('❌ Edición cancelada', 'info');
+}
+
+function addDeliverable(value = '') {
+    const container = document.getElementById('entregablesContainer');
+    if (!container) return;
+    
+    const div = document.createElement('div');
+    div.className = 'entregable-item';
+    div.innerHTML = `
+        <input type="text" name="entregables[]" placeholder="Ej: Diseño de logotipo profesional" value="${value}" required>
+        <button type="button" class="btn btn-small btn-danger" data-action="remove-deliverable">🗑️ Eliminar</button>
+    `;
+    container.appendChild(div);
+}
+
+function removeDeliverable(button) {
+    button.closest('.entregable-item').remove();
+}
+
+// Funciones de propuestas
+async function handleCreateProposal(form) {
+    try {
+        showLog('📝 Iniciando creación de propuesta...', 'info');
+        
+        const formData = new FormData(form);
+        const proposalData = {
+            nombre_proyecto: formData.get('nombre_proyecto'),
+            cliente_nombre: formData.get('cliente_nombre'),
+            cliente_empresa: formData.get('cliente_empresa'),
+            texto_introductorio: formData.get('texto_introductorio'),
+            resumen_ejecutivo: formData.get('resumen_ejecutivo'),
+            descripcion_empresa: formData.get('descripcion_empresa'),
+            objetivos_alcance: formData.get('objetivos_alcance'),
+            servicios_seleccionados: formData.getAll('servicios'),
+            entregables: formData.getAll('entregables[]').filter(e => e.trim() !== ''),
+            valor_proyecto: formData.get('valor_proyecto'),
+            terminos_pago: formData.get('terminos_pago'),
+            contacto_email: formData.get('contacto_email'),
+            contacto_whatsapp: formData.get('contacto_whatsapp'),
+            horarios_atencion: formData.get('horarios_atencion'),
+            terminos_condiciones: formData.get('terminos_condiciones'),
+            terminos_validez: formData.get('terminos_validez'),
+            texto_aceptacion: formData.get('texto_aceptacion'),
+            fecha_propuesta: new Date().toISOString()
+        };
+        
+        showLog('📊 Guardando en Supabase...', 'info');
+        
+        const result = await window.PropuestasService.saveProposal(proposalData);
+        
+        if (result) {
+            showLog(`✅ Propuesta guardada con código: ${result.codigo_propuesta}`, 'success');
+            showSuccess('¡Propuesta generada exitosamente!');
             
-            <div class="success-message" id="successMessage">
-                <div id="successContent">
-                    ✅ ¡Propuesta generada exitosamente! Se ha guardado en la base de datos.
-                </div>
-                <div id="proposalLinkSection" style="display: none; margin-top: 15px;">
-                    <p style="margin-bottom: 10px;"><strong>🌐 Tu propuesta está lista para ver:</strong></p>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                        <a id="openProposalBtn" href="#" target="_blank" class="btn btn-primary" style="text-decoration: none;">
-                            🚀 Abrir Propuesta Ahora
-                        </a>
-                        <button type="button" class="btn btn-secondary" data-action="copy-proposal-link">
-                            📋 Copiar Enlace
-                        </button>
-                    </div>
-                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
-                        <strong>Código de la propuesta:</strong> <code id="proposalCodeDisplay"></code>
-                    </div>
-                    <div style="margin-top: 15px; padding: 10px; background: rgba(40, 167, 69, 0.1); border-radius: 6px; border-left: 4px solid #28a745;">
-                        <p style="margin: 0; color: #155724; font-size: 0.9em;">
-                            <strong>⏰ Redirección automática:</strong> Se abrirá la propuesta en una nueva pestaña en <span class="countdown">3</span> segundos...
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="error-message" id="errorMessage">
-                ❌ Error al generar la propuesta. Por favor, verifica los datos e intenta nuevamente.
-            </div>
+            // Mostrar enlace de la propuesta
+            proposalLink = `${window.location.origin}/${result.codigo_propuesta}`;
+            document.getElementById('proposalCodeDisplay').textContent = result.codigo_propuesta;
+            document.getElementById('openProposalBtn').href = proposalLink;
+            document.getElementById('proposalLinkSection').style.display = 'block';
             
-            <!-- Panel de Logs en Tiempo Real -->
-            <div class="logs-panel" id="logsPanel">
-                <div class="logs-header">
-                    <h4>📊 Logs del Sistema</h4>
-                    <button type="button" class="btn btn-small btn-secondary" data-action="clear-logs">🧹 Limpiar</button>
-                    <button type="button" class="btn btn-small btn-info" data-action="export-logs">📥 Exportar</button>
+            // Limpiar formulario
+            form.reset();
+            document.getElementById('entregablesContainer').innerHTML = '';
+            addDeliverable(); // Agregar un campo vacío
+            
+            // Countdown y redirección
+            let countdown = 3;
+            const countdownElement = document.querySelector('.countdown');
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdownElement) {
+                    countdownElement.textContent = countdown;
+                }
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    window.open(proposalLink, '_blank');
+                }
+            }, 1000);
+        }
+    } catch (error) {
+        showLog(`❌ Error: ${error.message}`, 'error');
+        showError('Error al generar la propuesta. Por favor, verifica los datos e intenta nuevamente.');
+    }
+}
+
+async function handleUpdateProposal(form) {
+    try {
+        if (!currentEditId) {
+            showError('No se ha seleccionado una propuesta para editar');
+            return;
+        }
+        
+        showLog('📝 Actualizando propuesta...', 'info');
+        
+        const formData = new FormData(form);
+        const proposalData = {
+            nombre_proyecto: formData.get('nombre_proyecto'),
+            cliente_nombre: formData.get('cliente_nombre'),
+            cliente_empresa: formData.get('cliente_empresa'),
+            texto_introductorio: formData.get('texto_introductorio'),
+            resumen_ejecutivo: formData.get('resumen_ejecutivo'),
+            descripcion_empresa: formData.get('descripcion_empresa'),
+            objetivos_alcance: formData.get('objetivos_alcance'),
+            servicios_seleccionados: formData.getAll('servicios'),
+            entregables: formData.getAll('entregables[]').filter(e => e.trim() !== ''),
+            valor_proyecto: formData.get('valor_proyecto'),
+            terminos_pago: formData.get('terminos_pago'),
+            contacto_email: formData.get('contacto_email'),
+            contacto_whatsapp: formData.get('contacto_whatsapp'),
+            horarios_atencion: formData.get('horarios_atencion'),
+            terminos_condiciones: formData.get('terminos_condiciones'),
+            terminos_validez: formData.get('terminos_validez'),
+            texto_aceptacion: formData.get('texto_aceptacion')
+        };
+        
+        const result = await window.PropuestasService.updateProposal(currentEditId, proposalData);
+        
+        if (result) {
+            showLog(`✅ Propuesta actualizada: ${result.codigo_propuesta}`, 'success');
+            showSuccess('¡Propuesta actualizada exitosamente!');
+            
+            // Resetear modo edición
+            setFormMode('create');
+            
+            // Recargar lista si está visible
+            showTab('list');
+            setTimeout(() => location.reload(), 1000);
+        }
+    } catch (error) {
+        showLog(`❌ Error: ${error.message}`, 'error');
+        showError('Error al actualizar la propuesta.');
+    }
+}
+
+async function editProposal(proposalId) {
+    try {
+        showLog('🔍 Cargando propuesta para editar...', 'info');
+        
+        const proposal = await window.PropuestasService.getProposalById(proposalId);
+        if (!proposal) {
+            showError('No se encontró la propuesta');
+            return;
+        }
+        
+        setFormMode('edit', proposal);
+        showLog('✅ Propuesta cargada para edición', 'success');
+    } catch (error) {
+        showLog(`❌ Error: ${error.message}`, 'error');
+        showError('Error cargando la propuesta para editar');
+    }
+}
+
+async function previewProposal(proposalId) {
+    try {
+        const proposal = await window.PropuestasService.getProposalById(proposalId);
+        if (!proposal) return;
+
+        const proposalUrl = `${window.location.origin}/${proposal.codigo_propuesta}`;
+
+        const previewContent = `
+            <div style="padding: 20px;">
+                <h2 style="color: #08002B; margin-bottom: 20px;">👁️ Vista Previa de la Propuesta</h2>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong>📋 Proyecto:</strong> ${proposal.nombre_proyecto || 'Sin título'}
                 </div>
-                <div class="logs-content" id="logsContent">
-                    <div class="log-entry log-info">
-                        <span class="log-time">[Sistema]</span>
-                        <span class="log-message">Panel de logs inicializado. Los logs se mostrarán aquí en tiempo real.</span>
-                    </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong>👤 Cliente:</strong> ${proposal.cliente_nombre || 'Sin cliente'} - ${proposal.cliente_empresa || 'Sin empresa'}
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong>📅 Fecha:</strong> ${proposal.fecha_propuesta ? new Date(proposal.fecha_propuesta).toLocaleDateString('es-ES') : 'Sin fecha'}
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong>💰 Valor:</strong> ${proposal.valor_proyecto || 'Sin especificar'}
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong>🔑 Código:</strong> <code>${proposal.codigo_propuesta || 'N/A'}</code>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong>🌐 URL:</strong> <code>${proposalUrl}</code>
+                </div>
+                
+                <div style="margin-top: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <p><strong>💡 Para ver la propuesta completa:</strong></p>
+                    <button class="btn btn-primary" onclick="window.open('${proposalUrl}', '_blank')" style="margin-top: 10px;">
+                        🚀 Abrir Propuesta Completa
+                    </button>
                 </div>
             </div>
-        </div>
+        `;
+        
+        document.getElementById('previewContent').innerHTML = previewContent;
+        document.getElementById('previewModal').style.display = 'block';
+    } catch (error) {
+        console.error('Error cargando propuesta:', error);
+        showError('Error cargando la propuesta');
+    }
+}
 
-        <!-- Tab: Lista de Propuestas -->
-        <div id="list-tab" class="tab-content">
-            <div class="form-section">
-                <h3>📋 Propuestas Creadas</h3>
-                <ProposalsList />
-            </div>
-        </div>
-    </div>
+async function deleteProposal(proposalId) {
+    if (confirm('¿Estás seguro de que quieres eliminar esta propuesta? Esta acción no se puede deshacer.')) {
+        try {
+            await window.PropuestasService.deleteProposal(proposalId);
+            showLog('✅ Propuesta eliminada exitosamente', 'success');
+            showSuccess('Propuesta eliminada exitosamente');
+            setTimeout(() => location.reload(), 1000);
+        } catch (error) {
+            console.error('Error eliminando propuesta:', error);
+            showError('Error eliminando la propuesta');
+        }
+    }
+}
 
-    <!-- Modal para editar propuesta -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>✏️ Editar Propuesta</h2>
-                <span class="close" data-action="close-modal">&times;</span>
-            </div>
-            <div id="editFormContainer">
-                <!-- El formulario de edición se cargará aquí dinámicamente -->
-            </div>
-        </div>
-    </div>
+function openProposal(proposalCode) {
+    if (!proposalCode) {
+        alert('Esta propuesta no tiene un código válido');
+        return;
+    }
 
-    <!-- Modal para vista previa -->
-    <div id="previewModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>👁️ Vista Previa de la Propuesta</h2>
-                <span class="close" data-action="close-preview-modal">&times;</span>
-            </div>
-            <div id="previewContent" style="max-height: 60vh; overflow-y: auto; border: 1px solid #e1e5e9; padding: 20px; border-radius: 8px;">
-                <!-- El contenido de la propuesta se mostrará aquí -->
-            </div>
-        </div>
-    </div>
+    const proposalUrl = `${window.location.origin}/${proposalCode}`;
+    window.open(proposalUrl, '_blank');
+    showLog(`🚀 Propuesta abierta en nueva pestaña: ${proposalCode}`, 'success');
+}
 
-    <script type="module" src="/src/scripts/admin-main.js"></script>
-   
+function copyProposalLink() {
+    if (!proposalLink) return;
+    
+    navigator.clipboard.writeText(proposalLink).then(() => {
+        alert('¡Enlace copiado al portapapeles!\\n\\n' + proposalLink);
+    }).catch(() => {
+        const textArea = document.createElement('textarea');
+        textArea.value = proposalLink;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('¡Enlace copiado al portapapeles!\\n\\n' + proposalLink);
+    });
+}
 
+function copyProposalLinkFromCode(proposalCode) {
+    if (!proposalCode) {
+        alert('Esta propuesta no tiene un código válido');
+        return;
+    }
+
+    const proposalUrl = `${window.location.origin}/${proposalCode}`;
+    
+    navigator.clipboard.writeText(proposalUrl).then(() => {
+        alert('¡Enlace copiado al portapapeles!\\n\\n' + proposalUrl);
+    }).catch(() => {
+        const textArea = document.createElement('textarea');
+        textArea.value = proposalUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('¡Enlace copiado al portapapeles!\\n\\n' + proposalUrl);
+    });
+}
+
+// Event delegation para manejar todos los clicks
+function handleGlobalClick(event) {
+    const target = event.target;
+    
+    // Manejar tabs
+    if (target.hasAttribute('data-tab')) {
+        const tabName = target.getAttribute('data-tab');
+        showTab(tabName);
+        return;
+    }
+    
+    // Manejar acciones de botones
+    if (target.hasAttribute('data-action')) {
+        const action = target.getAttribute('data-action');
+        
+        switch (action) {
+            case 'add-deliverable':
+                addDeliverable();
+                break;
+            case 'remove-deliverable':
+                removeDeliverable(target);
+                break;
+            case 'copy-proposal-link':
+                copyProposalLink();
+                break;
+            case 'cancel-edit':
+                cancelEdit();
+                break;
+            case 'clear-logs':
+                clearLogs();
+                break;
+            case 'export-logs':
+                exportLogs();
+                break;
+            case 'close-modal':
+                closeModal();
+                break;
+            case 'close-preview-modal':
+                closePreviewModal();
+                break;
+            case 'open-proposal':
+                const code = target.getAttribute('data-code');
+                openProposal(code);
+                break;
+            case 'preview-proposal':
+                const previewId = target.getAttribute('data-id');
+                previewProposal(previewId);
+                break;
+            case 'edit-proposal':
+                const editId = target.getAttribute('data-id');
+                editProposal(editId);
+                break;
+            case 'copy-proposal-link-code':
+                const copyCode = target.getAttribute('data-code');
+                copyProposalLinkFromCode(copyCode);
+                break;
+            case 'delete-proposal':
+                const deleteId = target.getAttribute('data-id');
+                deleteProposal(deleteId);
+                break;
+        }
+    }
+}
+
+// Inicialización cuando el DOM está listo
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar si el formulario existe antes de agregar el event listener
+    const proposalForm = document.getElementById('proposalForm');
+    if (proposalForm) {
+        proposalForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (isEditMode) {
+                await handleUpdateProposal(this);
+            } else {
+                await handleCreateProposal(this);
+            }
+        });
+    }
+
+    // Cerrar modales al hacer clic fuera de ellos
+    window.onclick = function(event) {
+        const editModal = document.getElementById('editModal');
+        const previewModal = document.getElementById('previewModal');
+        
+        if (event.target === editModal) {
+            closeModal();
+        }
+        if (event.target === previewModal) {
+            closePreviewModal();
+        }
+    }
+
+    // Agregar event listener global para manejar todos los clicks
+    document.addEventListener('click', handleGlobalClick);
+
+    // Inicializar la aplicación
+    showLog('🚀 Sistema de Propuestas Cloud Pixels iniciando...', 'info');
+    showLog('📱 Versión: 3.0 - Panel de Administración', 'info');
+    showLog('🌐 Navegador: ' + navigator.userAgent.split(' ')[0], 'info');
+    showLog('⏰ Fecha: ' + new Date().toLocaleDateString('es-ES'), 'info');
+    
+    // Verificar conexión con Supabase
+    if (window.PropuestasService) {
+        showLog('✅ Servicio de propuestas disponible', 'success');
+        showLog('🔌 Conectado a Supabase', 'success');
+    } else {
+        showLog('❌ Error: Servicio de propuestas no disponible', 'error');
+    }
+
+    // Hacer funciones disponibles globalmente para compatibilidad
+    window.editProposal = editProposal;
+    window.previewProposal = previewProposal;
+    window.deleteProposal = deleteProposal;
+    window.openProposal = openProposal;
+    window.copyProposalLinkFromCode = copyProposalLinkFromCode;
+});
+</script>
