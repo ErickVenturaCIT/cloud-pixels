@@ -12,21 +12,14 @@ export async function initSupabase() {
     try {
         showLog('📡 Verificando servicio de Supabase...', 'info');
         
-        // Verificar si PropuestasService está disponible
-        if (typeof window !== 'undefined' && window.PropuestasService) {
-            db = window.PropuestasService;
-            showLog('✅ PropuestasService encontrado en window', 'success');
-        } else {
-            // Importar dinámicamente el servicio
-            try {
-                const { PropuestasService } = await import('/src/lib/supabase.ts');
-                db = PropuestasService;
-                showLog('✅ PropuestasService importado dinámicamente', 'success');
-            } catch (importError) {
-                showLog('❌ Error importando PropuestasService, usando mock', 'warning');
-                // Fallback al mock si falla la importación
-                db = createMockService();
-            }
+        // Importar el servicio de Supabase
+        try {
+            const { PropuestasService } = await import('/scripts/supabase-client.js');
+            db = PropuestasService;
+            showLog('✅ PropuestasService importado correctamente', 'success');
+        } catch (importError) {
+            showLog('❌ Error importando PropuestasService, usando mock', 'warning');
+            db = createMockService();
         }
         
         showLog('🔌 Conectando a Supabase...', 'info');
@@ -34,44 +27,32 @@ export async function initSupabase() {
         
         // Probar la conexión haciendo una consulta simple
         try {
-            const testResult = await db.getAllProposals();
+            const proposals = await db.getAllProposals();
             const endTime = Date.now();
-            const duration = endTime - startTime;
+            const responseTime = endTime - startTime;
             
-            showLog(`✅ Supabase conectado correctamente en ${duration}ms`, 'success');
-            showLog(`📊 Propuestas encontradas: ${testResult.length}`, 'success');
-            showLog('🌐 URL de Supabase: https://cgchcozsszowdizlupkc.supabase.co', 'info');
+            showLog(`✅ Conexión exitosa a Supabase (${responseTime}ms)`, 'success');
+            showLog(`📊 ${proposals.length || 0} propuestas encontradas`, 'info');
             
-            showLog('📋 Cargando lista de propuestas existentes...', 'info');
-            // No recargar automáticamente - solo mostrar mensaje
-            showLog('✅ Operación completada. La lista se actualizará al cambiar de pestaña.', 'success');
-            showLog('✅ Lista de propuestas cargada correctamente', 'success');
+        } catch (error) {
+            showLog(`❌ Error de conexión: ${error.message}`, 'error');
+            showLog('🔧 Verificando configuración de Supabase...', 'info');
             
-        } catch (dbError) {
-            showLog(`❌ Error conectando a Supabase: ${dbError.message}`, 'error');
-            showLog('🔄 Cambiando a modo mock...', 'warning');
-            db = createMockService();
-            // No recargar automáticamente - solo mostrar mensaje
-            showLog('✅ Operación completada. La lista se actualizará al cambiar de pestaña.', 'success');
+            // Verificar si las credenciales están configuradas
+            if (typeof window !== 'undefined') {
+                const envUrl = window.location.hostname === 'localhost' ? 'localhost' : 'deploy';
+                showLog(`🌐 Entorno detectado: ${envUrl}`, 'info');
+                
+                if (envUrl === 'deploy') {
+                    showLog('⚠️ En deploy, verifica que las variables de entorno estén configuradas', 'warning');
+                    showLog('📝 PUBLIC_SUPABASE_URL y PUBLIC_SUPABASE_ANON_KEY', 'info');
+                }
+            }
         }
         
     } catch (error) {
-        showLog(`❌ ERROR inicializando Supabase: ${error.message}`, 'error');
-        showLog(`🔍 Stack trace: ${error.stack}`, 'error');
-        showLog(`📊 Tipo de error: ${error.name}`, 'error');
-        
-        // Información adicional para debugging
-        if (error.code) {
-            showLog(`🔢 Código de error: ${error.code}`, 'error');
-        }
-        if (error.details) {
-            showLog(`📋 Detalles: ${error.details}`, 'error');
-        }
-        if (error.hint) {
-            showLog(`💡 Sugerencia: ${error.hint}`, 'error');
-        }
-        
-        showError('Error conectando con la base de datos');
+        showLog(`❌ Error en inicialización: ${error.message}`, 'error');
+        db = createMockService();
     }
 }
 

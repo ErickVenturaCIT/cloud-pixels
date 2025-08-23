@@ -1,15 +1,20 @@
 ---
-import { PropuestasService } from "../lib/supabase";
+import { PropuestasService } from "../lib/supabase-client";
 
 // Obtener todas las propuestas
-let propuestas = [];
-let error = null;
+let propuestas: any[] = [];
+let error: string | null = null;
 
 try {
-    propuestas = await PropuestasService.getAllProposals();
-} catch (e) {
+    const result = await PropuestasService.getAllProposals();
+    if (result.error) {
+        error = result.error.message || 'Error desconocido';
+    } else {
+        propuestas = result.data || [];
+    }
+} catch (e: any) {
     console.error('Error cargando propuestas:', e);
-    error = e.message;
+    error = e.message || 'Error desconocido';
 }
 ---
 
@@ -80,7 +85,7 @@ try {
                         <div class="services-preview">
                             <p class="services-label"><strong>Servicios:</strong></p>
                             <div class="services-tags">
-                                {propuesta.servicios_seleccionados.slice(0, 3).map(servicio => (
+                                {propuesta.servicios_seleccionados.slice(0, 3).map((servicio: string) => (
                                     <span class="service-tag">{servicio}</span>
                                 ))}
                                 {propuesta.servicios_seleccionados.length > 3 && (

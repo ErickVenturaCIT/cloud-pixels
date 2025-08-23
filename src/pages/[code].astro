@@ -1,16 +1,21 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { PropuestasService } from "../lib/supabase";
+import { PropuestasService } from "../lib/supabase-client";
 import "../styles/proposal-page.css";
 
 // Generar rutas estáticas para propuestas existentes + fallback para nuevas
 export async function getStaticPaths() {
     try {
         // Obtener todas las propuestas de la base de datos
-        const propuestas = await PropuestasService.getAllProposals();
+        const { data: propuestas, error } = await PropuestasService.getAllProposals();
+        
+        if (error || !propuestas) {
+            console.error('Error obteniendo propuestas:', error);
+            return [];
+        }
         
         // Generar rutas para propuestas existentes
-        const staticRoutes = propuestas.map(propuesta => ({
+        const staticRoutes = propuestas.map((propuesta: any) => ({
             params: { code: propuesta.codigo_propuesta },
             props: { propuesta, isStatic: true }
         }));
@@ -302,12 +307,12 @@ const isDynamic = !propuesta;
             async function loadDynamicProposal() {
                 try {
                     // Import Supabase service directly for client-side loading
-                    const { PropuestasService } = await import('../lib/supabase.js');
+                    const { PropuestasService } = await import('../lib/supabase-client.js');
                     
                     // Initialize and get proposal by code
-                    const propuesta = await PropuestasService.getProposalByCode(code);
+                    const { data: propuesta, error } = await PropuestasService.getProposalByCode(code);
                     
-                    if (!propuesta) {
+                    if (error || !propuesta) {
                         throw new Error('Propuesta no encontrada');
                     }
                     populateProposal(propuesta);

@@ -1,4 +1,4 @@
-import { PropuestasClientService, type Propuesta } from '../lib/supabase-client';
+import { PropuestasService, type Propuesta } from '../lib/supabase-client';
 
 // Estado global
 let allProposals: Propuesta[] = [];
@@ -33,7 +33,7 @@ async function loadProposals(): Promise<void> {
   try {
     showLoading(true);
     
-    const { data, error } = await PropuestasClientService.getAllProposals();
+    const { data, error } = await PropuestasService.getAllProposals();
     
     if (error) {
       console.error('Error al cargar propuestas:', error);
@@ -75,7 +75,7 @@ function renderProposals(): void {
       <td class="px-4 py-3">${proposal.nombre_proyecto}</td>
       <td class="px-4 py-3">${proposal.cliente_nombre}</td>
       <td class="px-4 py-3">${proposal.cliente_empresa}</td>
-      <td class="px-4 py-3">${formatDate(proposal.fecha_propuesta || proposal.created_at)}</td>
+      <td class="px-4 py-3">${formatDate(proposal.fecha_propuesta || proposal.created_at || '')}</td>
       <td class="px-4 py-3">${proposal.valor_proyecto || 'No especificado'}</td>
       <td class="px-4 py-3">
         <div class="flex space-x-2">
@@ -92,7 +92,7 @@ function renderProposals(): void {
             ✏️ Editar
           </button>
           <button
-            onclick="deleteProposal(${proposal.id})"
+            onclick="deleteProposal(${proposal.id || 0})"
             class="btn btn-danger btn-small"
           >
             🗑️ Eliminar
@@ -249,7 +249,7 @@ declare global {
 // Ver detalles de propuesta
 window.viewProposalDetails = async function(code: string): Promise<void> {
   try {
-    const { data, error } = await PropuestasClientService.getProposalByCode(code);
+    const { data, error } = await PropuestasService.getProposalByCode(code);
     
     if (error || !data) {
       alert('Error al cargar los detalles de la propuesta');
@@ -278,7 +278,7 @@ window.deleteProposal = async function(id: number): Promise<void> {
   }
   
   try {
-    const { error } = await PropuestasClientService.deleteProposal(id);
+    const { error } = await PropuestasService.deleteProposal(id);
     
     if (error) {
       alert(`Error al eliminar la propuesta: ${error.message}`);
