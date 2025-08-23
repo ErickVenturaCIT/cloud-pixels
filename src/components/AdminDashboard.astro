@@ -382,7 +382,7 @@ async function handleCreateProposal(form) {
             showSuccess('¡Propuesta generada exitosamente!');
             
             // Mostrar enlace de la propuesta
-            proposalLink = `${window.location.origin}/${result.codigo_propuesta}`;
+            proposalLink = `${window.location.origin}/details?code=${result.codigo_propuesta}`;
             document.getElementById('proposalCodeDisplay').textContent = result.codigo_propuesta;
             document.getElementById('openProposalBtn').href = proposalLink;
             document.getElementById('proposalLinkSection').style.display = 'block';
@@ -545,16 +545,16 @@ async function deleteProposal(proposalId) {
     }
 }
 
-function openProposal(proposalCode) {
-    if (!proposalCode) {
-        alert('Esta propuesta no tiene un código válido');
-        return;
-    }
+    function openProposal(proposalCode) {
+        if (!proposalCode) {
+            alert('Esta propuesta no tiene un código válido');
+            return;
+        }
 
-    const proposalUrl = `${window.location.origin}/${proposalCode}`;
-    window.open(proposalUrl, '_blank');
-    showLog(`🚀 Propuesta abierta en nueva pestaña: ${proposalCode}`, 'success');
-}
+        const proposalUrl = `${window.location.origin}/details?code=${proposalCode}`;
+        window.open(proposalUrl, '_blank');
+        showLog(`🚀 Propuesta abierta en nueva pestaña: ${proposalCode}`, 'success');
+    }
 
 function copyProposalLink() {
     if (!proposalLink) return;
@@ -572,13 +572,13 @@ function copyProposalLink() {
     });
 }
 
-function copyProposalLinkFromCode(proposalCode) {
-    if (!proposalCode) {
-        alert('Esta propuesta no tiene un código válido');
-        return;
-    }
+    function copyProposalLinkFromCode(proposalCode) {
+        if (!proposalCode) {
+            alert('Esta propuesta no tiene un código válido');
+            return;
+        }
 
-    const proposalUrl = `${window.location.origin}/${proposalCode}`;
+        const proposalUrl = `${window.location.origin}/details?code=${proposalCode}`;
     
     navigator.clipboard.writeText(proposalUrl).then(() => {
         alert('¡Enlace copiado al portapapeles!\\n\\n' + proposalUrl);
