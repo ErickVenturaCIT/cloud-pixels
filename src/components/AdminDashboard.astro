@@ -53,20 +53,7 @@ import ProposalsList from './ProposalsList.astro';
             ❌ Error al generar la propuesta. Por favor, verifica los datos e intenta nuevamente.
         </div>
         
-        <!-- Panel de Logs en Tiempo Real -->
-        <div class="logs-panel" id="logsPanel">
-            <div class="logs-header">
-                <h4>📊 Logs del Sistema</h4>
-                <button type="button" class="btn btn-small btn-secondary" data-action="clear-logs">🧹 Limpiar</button>
-                <button type="button" class="btn btn-small btn-info" data-action="export-logs">📥 Exportar</button>
-            </div>
-            <div class="logs-content" id="logsContent">
-                <div class="log-entry log-info">
-                    <span class="log-time">[Sistema]</span>
-                    <span class="log-message">Panel de logs inicializado. Los logs se mostrarán aquí en tiempo real.</span>
-                </div>
-            </div>
-        </div>
+
     </div>
 
     <!-- Tab: Lista de Propuestas -->
@@ -112,20 +99,8 @@ let proposalLink = '';
 
 // Funciones de UI
 function showLog(message, type = 'info') {
-    const logsContent = document.getElementById('logsContent');
-    if (!logsContent) return;
-    
-    const timestamp = new Date().toLocaleTimeString('es-ES');
-    const logEntry = document.createElement('div');
-    logEntry.className = `log-entry log-${type}`;
-    
-    logEntry.innerHTML = `
-        <span class="log-time">[${timestamp}]</span>
-        <span class="log-message">${message}</span>
-    `;
-    
-    logsContent.appendChild(logEntry);
-    logsContent.scrollTop = logsContent.scrollHeight;
+    // Función simplificada - solo console.log para debugging
+    console.log(`[${type.toUpperCase()}] ${message}`);
 }
 
 function showError(message) {
@@ -175,40 +150,7 @@ function showTab(tabName) {
     showLog(`📑 Cambiando a pestaña: ${tabName === 'create' ? 'Crear Propuesta' : 'Lista de Propuestas'}`, 'info');
 }
 
-function clearLogs() {
-    const logsContent = document.getElementById('logsContent');
-    if (logsContent) {
-        logsContent.innerHTML = `
-            <div class="log-entry log-info">
-                <span class="log-time">[Sistema]</span>
-                <span class="log-message">Logs limpiados. El sistema continúa registrando eventos.</span>
-            </div>
-        `;
-    }
-}
 
-function exportLogs() {
-    const logsContent = document.getElementById('logsContent');
-    if (!logsContent) return;
-    
-    const logs = Array.from(logsContent.querySelectorAll('.log-entry')).map(entry => {
-        const time = entry.querySelector('.log-time')?.textContent || '';
-        const message = entry.querySelector('.log-message')?.textContent || '';
-        return `${time} ${message}`;
-    }).join('\n');
-    
-    const blob = new Blob([logs], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cloud-pixels-logs-${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showLog('📥 Logs exportados exitosamente', 'success');
-}
 
 function closeModal() {
     const modal = document.getElementById('editModal');
@@ -484,7 +426,7 @@ async function previewProposal(proposalId) {
         const proposal = await window.PropuestasService.getProposalById(proposalId);
         if (!proposal) return;
 
-        const proposalUrl = `${window.location.origin}/${proposal.codigo_propuesta}`;
+        const proposalUrl = `${window.location.origin}/details?code=${proposal.codigo_propuesta}`;
 
         const previewContent = `
             <div style="padding: 20px;">
@@ -621,12 +563,7 @@ function handleGlobalClick(event) {
             case 'cancel-edit':
                 cancelEdit();
                 break;
-            case 'clear-logs':
-                clearLogs();
-                break;
-            case 'export-logs':
-                exportLogs();
-                break;
+
             case 'close-modal':
                 closeModal();
                 break;
