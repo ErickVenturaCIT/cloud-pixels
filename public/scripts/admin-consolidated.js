@@ -1,82 +1,123 @@
-// admin-consolidated.js - Archivo consolidado con todas las funcionalidades del admin
+// ===== ADMIN CONSOLIDATED SCRIPT =====
+// Sistema de Propuestas Cloud Pixels - Panel de Administración Consolidado
+// Versión: 3.0 - Archivo único consolidado
+
+// ===== VARIABLES GLOBALES =====
+let db = null;
+let isEditMode = false;
+let currentProposalId = null;
+
+// ===== LOGGING SYSTEM =====
+function showLog(message, type = 'info') {
+    const timestamp = new Date().toLocaleTimeString('es-ES');
+    const logMessage = `[${timestamp}] ${message}`;
+    
+    switch (type) {
+        case 'success':
+            console.log(`%c${logMessage}`, 'color: #28a745; font-weight: bold;');
+            break;
+        case 'warning':
+            console.warn(`%c${logMessage}`, 'color: #ffc107; font-weight: bold;');
+            break;
+        case 'error':
+            console.error(`%c${logMessage}`, 'color: #dc3545; font-weight: bold;');
+            break;
+        default:
+            console.log(`%c${logMessage}`, 'color: #17a2b8; font-weight: bold;');
+    }
+}
 
 // ===== UI HELPERS =====
 function showTab(tabName) {
-    // Ocultar todos los tabs
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
+    // Ocultar todas las pestañas
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => content.classList.remove('active'));
     
-    // Remover clase active de todos los botones
-    document.querySelectorAll('.tab').forEach(button => {
-        button.classList.remove('active');
-    });
+    // Desactivar todos los botones de pestaña
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
     
-    // Mostrar el tab seleccionado
-    const selectedTab = document.getElementById(tabName + '-tab');
+    // Mostrar la pestaña seleccionada
+    const selectedTab = document.getElementById(`${tabName}-tab`);
     if (selectedTab) {
         selectedTab.classList.add('active');
     }
     
-    // Activar el botón correspondiente
-    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
-    if (activeButton) {
-        activeButton.classList.add('active');
+    // Activar el botón de la pestaña seleccionada
+    const selectedTabButton = document.querySelector(`[data-tab="${tabName}"]`);
+    if (selectedTabButton) {
+        selectedTabButton.classList.add('active');
     }
-}
-
-function showError(message) {
-    const errorElement = document.getElementById('errorMessage');
-    if (errorElement) {
-        errorElement.textContent = message;
-        errorElement.style.display = 'block';
-        setTimeout(() => {
-            errorElement.style.display = 'none';
-        }, 5000);
+    
+    showLog(`📱 Cambiando a pestaña: ${tabName}`, 'info');
+    
+    // Si es la pestaña de lista, cargar las propuestas
+    if (tabName === 'list') {
+        loadProposalsList();
     }
 }
 
 function showSuccess(message) {
-    const successElement = document.getElementById('successMessage');
-    if (successElement) {
-        successElement.style.display = 'block';
-        document.getElementById('successContent').textContent = message;
+    const successMessage = document.getElementById('successMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    if (successMessage) {
+        successMessage.style.display = 'block';
+        successMessage.querySelector('#successContent').textContent = message;
     }
-}
-
-function showLog(message, type = 'info') {
-    console.log(`[${type.toUpperCase()}] ${message}`);
-}
-
-function clearLogs() {
-    console.clear();
-    showLog('📋 Logs limpiados', 'info');
-}
-
-function exportLogs() {
-    showLog('📤 Función de exportar logs no implementada aún', 'warning');
-}
-
-function closeModal() {
-    const modal = document.getElementById('editModal');
-    if (modal) {
-        modal.style.display = 'none';
+    
+    if (errorMessage) {
+        errorMessage.style.display = 'none';
     }
+    
+    // Ocultar después de 5 segundos
+    setTimeout(() => {
+        if (successMessage) {
+            successMessage.style.display = 'none';
+        }
+    }, 5000);
 }
 
-function closePreviewModal() {
-    const modal = document.getElementById('previewModal');
-    if (modal) {
-        modal.style.display = 'none';
+function showError(message) {
+    const successMessage = document.getElementById('successMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    if (errorMessage) {
+        errorMessage.style.display = 'block';
+        errorMessage.textContent = message;
     }
+    
+    if (successMessage) {
+        successMessage.style.display = 'none';
+    }
+    
+    // Ocultar después de 5 segundos
+    setTimeout(() => {
+        if (errorMessage) {
+            errorMessage.style.display = 'none';
+        }
+    }, 5000);
 }
 
 // ===== FORM MANAGER =====
-let isEditMode = false;
-
 function setFormMode(mode) {
     isEditMode = mode === 'edit';
     showLog(`🔄 Modo del formulario cambiado a: ${mode}`, 'info');
+    
+    const form = document.getElementById('proposalForm');
+    if (!form) return;
+    
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+        submitButton.textContent = isEditMode ? '✏️ Actualizar Propuesta' : '🚀 Crear Propuesta';
+    }
+    
+    // Agregar/quitar botón de cancelar edición
+    if (isEditMode) {
+        addCancelEditButton();
+    } else {
+        removeCancelEditButton();
+    }
 }
 
 function getIsEditMode() {
@@ -109,7 +150,13 @@ function removeDeliverable(target) {
 function cancelEdit() {
     setFormMode('create');
     showLog('❌ Edición cancelada', 'info');
-    // Aquí podrías resetear el formulario si es necesario
+    
+    const form = document.getElementById('proposalForm');
+    if (form) {
+        form.reset();
+    }
+    
+    currentProposalId = null;
 }
 
 function addCancelEditButton() {
@@ -132,76 +179,28 @@ function addCancelEditButton() {
     }
 }
 
-async function handleCreateProposal(form, db) {
-    try {
-        showLog('📝 Procesando creación de propuesta...', 'info');
-        
-        const formData = new FormData(form);
-        const proposalData = {
-            nombre_proyecto: formData.get('projectName'),
-            cliente_nombre: formData.get('clientName'),
-            cliente_empresa: formData.get('clientCompany'),
-            // Agregar más campos según sea necesario
-        };
-        
-        showLog('✅ Propuesta creada exitosamente', 'success');
-        showSuccess('✅ ¡Propuesta generada exitosamente! Se ha guardado en la base de datos.');
-        
-        // Resetear formulario
-        form.reset();
-        
-    } catch (error) {
-        showLog(`❌ Error al crear propuesta: ${error.message}`, 'error');
-        showError('❌ Error al generar la propuesta. Por favor, verifica los datos e intenta nuevamente.');
-    }
-}
-
-async function handleUpdateProposal(form, db) {
-    try {
-        showLog('✏️ Procesando actualización de propuesta...', 'info');
-        
-        // Lógica para actualizar propuesta
-        showLog('✅ Propuesta actualizada exitosamente', 'success');
-        showSuccess('✅ ¡Propuesta actualizada exitosamente!');
-        
-        setFormMode('create');
-        
-    } catch (error) {
-        showLog(`❌ Error al actualizar propuesta: ${error.message}`, 'error');
-        showError('❌ Error al actualizar la propuesta. Por favor, verifica los datos e intenta nuevamente.');
+function removeCancelEditButton() {
+    const cancelButton = document.querySelector('[data-action="cancel-edit"]');
+    if (cancelButton) {
+        cancelButton.remove();
     }
 }
 
 // ===== SUPABASE MANAGER =====
-let db = null;
-
 async function initSupabase() {
     showLog('🔧 Iniciando inicialización de base de datos...', 'info');
     
     try {
         showLog('📡 Verificando servicio de Supabase...', 'info');
         
-        // Verificar si PropuestasService está disponible
-        if (typeof window !== 'undefined' && window.PropuestasService) {
-            db = window.PropuestasService;
-            showLog('✅ PropuestasService encontrado en window', 'success');
-        } else {
-            // Importar dinámicamente el servicio
-            try {
-                const { PropuestasService } = await import('/src/lib/supabase.ts');
-                db = PropuestasService;
-                showLog('✅ PropuestasService importado dinámicamente', 'success');
-            } catch (importError) {
-                showLog('❌ Error importando PropuestasService, usando mock', 'warning');
-                // Fallback al mock si falla la importación
-                db = createMockService();
-            }
-        }
+        // Crear servicio de Supabase directo
+        showLog('🔌 Creando conexión directa a Supabase...', 'info');
+        db = createSupabaseService();
         
         showLog('🔌 Conectando a Supabase...', 'info');
         const startTime = Date.now();
         
-        // Probar la conexión haciendo una consulta simple
+        // Probar la conexión
         try {
             const testResult = await db.getAllProposals();
             const endTime = Date.now();
@@ -211,28 +210,22 @@ async function initSupabase() {
             showLog(`📊 Propuestas encontradas: ${testResult.length}`, 'success');
             showLog('🌐 URL de Supabase: https://cgchcozsszowdizlupkc.supabase.co', 'info');
             
-            showLog('📋 Cargando lista de propuestas existentes...', 'info');
-            await loadProposalsList();
-            showLog('✅ Lista de propuestas cargada correctamente', 'success');
-            
         } catch (dbError) {
             showLog(`❌ Error conectando a Supabase: ${dbError.message}`, 'error');
             showLog('🔄 Cambiando a modo mock...', 'warning');
             db = createMockService();
-            await loadProposalsList();
         }
         
     } catch (error) {
         showLog(`💥 Error crítico en inicialización: ${error.message}`, 'error');
         db = createMockService();
-        await loadProposalsList();
     }
 }
 
 function createMockService() {
+    showLog('🎭 Usando servicio mock - sin datos reales', 'warning');
     return {
         getAllProposals: async () => {
-            showLog('🎭 Usando servicio mock - sin datos reales', 'warning');
             return [];
         },
         getProposalByCode: async (code) => null,
@@ -243,10 +236,158 @@ function createMockService() {
     };
 }
 
+function createSupabaseService() {
+    showLog('🔌 Creando conexión directa a Supabase...', 'info');
+    
+    // Configuración de Supabase
+    const supabaseUrl = 'https://cgchcozsszowdizlupkc.supabase.co';
+    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnY2hjb3pzc3pvd2Rpemx1cGtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3NTM1OTQsImV4cCI6MjA3MTMyOTU5NH0.HunwagMGHZsPJa1GwYNl4UgxpYCOWWrUV6shUzacow4';
+    
+    return {
+        getAllProposals: async () => {
+            try {
+                showLog('📡 Consultando propuestas desde Supabase...', 'info');
+                
+                const response = await fetch(`${supabaseUrl}/rest/v1/propuestas?select=*&order=created_at.desc`, {
+                    headers: {
+                        'apikey': supabaseAnonKey,
+                        'Authorization': `Bearer ${supabaseAnonKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                showLog(`✅ ${data.length} propuestas obtenidas de Supabase`, 'success');
+                return data || [];
+                
+            } catch (error) {
+                showLog(`❌ Error obteniendo propuestas: ${error.message}`, 'error');
+                throw error;
+            }
+        },
+        getProposalByCode: async (code) => {
+            try {
+                const response = await fetch(`${supabaseUrl}/rest/v1/propuestas?select=*&codigo_propuesta=eq.${code}&limit=1`, {
+                    headers: {
+                        'apikey': supabaseAnonKey,
+                        'Authorization': `Bearer ${supabaseAnonKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                return data[0] || null;
+                
+            } catch (error) {
+                showLog(`❌ Error obteniendo propuesta por código: ${error.message}`, 'error');
+                return null;
+            }
+        },
+        getProposalById: async (id) => {
+            try {
+                const response = await fetch(`${supabaseUrl}/rest/v1/propuestas?select=*&id=eq.${id}&limit=1`, {
+                    headers: {
+                        'apikey': supabaseAnonKey,
+                        'Authorization': `Bearer ${supabaseAnonKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                return data[0] || null;
+                
+            } catch (error) {
+                showLog(`❌ Error obteniendo propuesta por ID: ${error.message}`, 'error');
+                return null;
+            }
+        },
+        saveProposal: async (proposalData) => {
+            try {
+                // Generar código único
+                proposalData.codigo_propuesta = generateProposalCode();
+                
+                const response = await fetch(`${supabaseUrl}/rest/v1/propuestas`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': supabaseAnonKey,
+                        'Authorization': `Bearer ${supabaseAnonKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(proposalData)
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                return data[0] || null;
+                
+            } catch (error) {
+                showLog(`❌ Error guardando propuesta: ${error.message}`, 'error');
+                throw error;
+            }
+        },
+        updateProposal: async (id, updatedData) => {
+            try {
+                const response = await fetch(`${supabaseUrl}/rest/v1/propuestas?id=eq.${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': supabaseAnonKey,
+                        'Authorization': `Bearer ${supabaseAnonKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                return data[0] || null;
+                
+            } catch (error) {
+                showLog(`❌ Error actualizando propuesta: ${error.message}`, 'error');
+                throw error;
+            }
+        },
+        deleteProposal: async (id) => {
+            try {
+                const response = await fetch(`${supabaseUrl}/rest/v1/propuestas?id=eq.${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': supabaseAnonKey,
+                        'Authorization': `Bearer ${supabaseAnonKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return true;
+                
+            } catch (error) {
+                showLog(`❌ Error eliminando propuesta: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+    };
+}
+
+function generateProposalCode() {
+    const date = new Date();
+    const dateStr = date.getFullYear().toString() + 
+                   (date.getMonth() + 1).toString().padStart(2, '0') + 
+                   date.getDate().toString().padStart(2, '0');
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `CP-${dateStr}-${random}`;
+}
+
 function getDatabase() {
     return db;
 }
 
+// ===== PROPOSALS LIST =====
 async function loadProposalsList() {
     showLog('📋 Cargando lista de propuestas...', 'info');
     
@@ -319,9 +460,11 @@ async function loadProposalsList() {
     }
 }
 
+// ===== PROPOSAL ACTIONS =====
 async function editProposal(id) {
     showLog(`✏️ Editando propuesta ID: ${id}`, 'info');
     setFormMode('edit');
+    currentProposalId = id;
     
     try {
         const proposal = await db.getProposalById(id);
@@ -430,43 +573,29 @@ function copyProposalLinkFromCode(code) {
 function handleGlobalClick(event) {
     const target = event.target;
     
-    // Manejar tabs
+    // Manejar clics en botones de pestañas
     if (target.hasAttribute('data-tab')) {
         const tabName = target.getAttribute('data-tab');
         showTab(tabName);
         return;
     }
     
-    // Manejar acciones de botones
+    // Manejar clics en botones de acción
     if (target.hasAttribute('data-action')) {
         const action = target.getAttribute('data-action');
         
         switch (action) {
-            case 'add-deliverable':
-                addDeliverable();
-                break;
             case 'remove-deliverable':
                 removeDeliverable(target);
-                break;
-            case 'copy-proposal-link':
-                if (window.copyProposalLink) {
-                    window.copyProposalLink();
-                }
                 break;
             case 'cancel-edit':
                 cancelEdit();
                 break;
-            case 'clear-logs':
-                clearLogs();
-                break;
-            case 'export-logs':
-                exportLogs();
-                break;
             case 'close-modal':
-                closeModal();
+                closeModal('editModal');
                 break;
             case 'close-preview-modal':
-                closePreviewModal();
+                closeModal('previewModal');
                 break;
             case 'open-proposal':
                 const code = target.getAttribute('data-code');
@@ -480,67 +609,65 @@ function handleGlobalClick(event) {
                 const editId = target.getAttribute('data-id');
                 editProposal(editId);
                 break;
-            case 'copy-proposal-link-code':
-                const copyCode = target.getAttribute('data-code');
-                copyProposalLinkFromCode(copyCode);
-                break;
             case 'delete-proposal':
                 const deleteId = target.getAttribute('data-id');
                 deleteProposal(deleteId);
                 break;
+            case 'copy-proposal-link-code':
+                const copyCode = target.getAttribute('data-code');
+                copyProposalLinkFromCode(copyCode);
+                break;
         }
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
     }
 }
 
 // ===== INITIALIZATION =====
-document.addEventListener('DOMContentLoaded', function() {
-    // Verificar si el formulario existe antes de agregar el event listener
-    const proposalForm = document.getElementById('proposalForm');
-    if (proposalForm) {
-        proposalForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const db = getDatabase();
-            
-            if (getIsEditMode()) {
-                await handleUpdateProposal(this, db);
-            } else {
-                await handleCreateProposal(this, db);
-            }
-        });
-    }
-    
-    // Agregar botón de cancelar edición
-    addCancelEditButton();
-
-    // Cerrar modales al hacer clic fuera de ellos
-    window.onclick = function(event) {
-        const editModal = document.getElementById('editModal');
-        const previewModal = document.getElementById('previewModal');
-        
-        if (event.target === editModal) {
-            closeModal();
-        }
-        if (event.target === previewModal) {
-            closePreviewModal();
-        }
-    }
-
-    // Agregar event listener global para manejar todos los clicks
-    document.addEventListener('click', handleGlobalClick);
-
-    // Inicializar la aplicación
+document.addEventListener('DOMContentLoaded', async () => {
     showLog('🚀 Sistema de Propuestas Cloud Pixels iniciando...', 'info');
     showLog('📱 Versión: 3.0 - Panel de Administración Consolidado', 'info');
-    showLog('🌐 Navegador: ' + navigator.userAgent.split(' ')[0], 'info');
-    showLog('⏰ Fecha: ' + new Date().toLocaleDateString('es-ES'), 'info');
+    showLog(`🌐 Navegador: ${navigator.userAgent.split(' ')[0]}`, 'info');
+    showLog(`⏰ Fecha: ${new Date().toLocaleDateString('es-ES')}`, 'info');
     
-    initSupabase();
+    // Inicializar Supabase
+    await initSupabase();
+    
+    // Agregar event listeners
+    document.addEventListener('click', handleGlobalClick);
+    
+    // Cerrar modales al hacer clic fuera
+    window.addEventListener('click', (event) => {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+    
+    showLog('✅ Sistema inicializado correctamente', 'success');
 });
 
-// Hacer funciones disponibles globalmente para compatibilidad
-if (typeof window !== 'undefined') {
-    window.showTab = showTab;
-    window.setFormMode = setFormMode;
-    window.loadProposalsList = loadProposalsList;
-}
+// ===== EXPORT FUNCTIONS FOR GLOBAL ACCESS =====
+window.AdminDashboard = {
+    showTab,
+    showSuccess,
+    showError,
+    setFormMode,
+    getIsEditMode,
+    addDeliverable,
+    removeDeliverable,
+    cancelEdit,
+    loadProposalsList,
+    editProposal,
+    previewProposal,
+    deleteProposal,
+    openProposal,
+    copyProposalLinkFromCode
+};
