@@ -1,295 +1,293 @@
-import { PropuestasService, type Propuesta } from '../lib/supabase-client';
+// Tipos para las propuestas
+interface Propuesta {
+  id: string;
+  codigo_propuesta: string;
+  nombre_proyecto: string;
+  cliente_nombre: string;
+  cliente_empresa: string;
+  fecha_propuesta?: string;
+  valor_proyecto?: string;
+  texto_introductorio?: string;
+  resumen_ejecutivo?: string;
+  created_at?: string;
+}
 
-// Estado global
-let allProposals: Propuesta[] = [];
-let filteredProposals: Propuesta[] = [];
+// Variables globales
+let propuestas: Propuesta[] = [];
+let filteredPropuestas: Propuesta[] = [];
 
 // Elementos del DOM
-const searchInput = document.getElementById('searchInput') as HTMLInputElement;
-const dateFilter = document.getElementById('dateFilter') as HTMLSelectElement;
-const sortBy = document.getElementById('sortBy') as HTMLSelectElement;
-const propuestasTableBody = document.getElementById('propuestasTableBody') as HTMLTableSectionElement;
-const loadingState = document.getElementById('loadingState') as HTMLDivElement;
-const emptyState = document.getElementById('emptyState') as HTMLDivElement;
+const elements = {
+  tbody: document.getElementById('propuestasTableBody') as HTMLTableSectionElement,
+  loadingState: document.getElementById('loadingState') as HTMLDivElement,
+  emptyState: document.getElementById('emptyState') as HTMLDivElement,
+  searchInput: document.getElementById('searchInput') as HTMLInputElement,
+  dateFilter: document.getElementById('dateFilter') as HTMLSelectElement,
+  sortBy: document.getElementById('sortBy') as HTMLSelectElement,
+  detailsModal: document.getElementById('detailsModal') as HTMLDivElement,
+  modalContent: document.getElementById('modalContent') as HTMLDivElement
+};
 
 // Inicialización
 export function initPropuestas(): void {
-  if (!searchInput || !dateFilter || !sortBy || !propuestasTableBody) {
-    console.error('Elementos del DOM no encontrados');
-    return;
-  }
+  // Cargar propuestas al iniciar la página
+  loadPropuestas();
 
-  // Cargar propuestas iniciales
-  loadProposals();
-
-  // Event listeners
-  searchInput.addEventListener('input', handleSearch);
-  dateFilter.addEventListener('change', handleDateFilter);
-  sortBy.addEventListener('change', handleSort);
+  // Eventos de filtros
+  elements.searchInput?.addEventListener('input', filterPropuestas);
+  elements.dateFilter?.addEventListener('change', filterPropuestas);
+  elements.sortBy?.addEventListener('change', sortPropuestas);
 }
 
-// Cargar propuestas desde Supabase
-async function loadProposals(): Promise<void> {
+// Cargar propuestas desde la API
+async function loadPropuestas(): Promise<void> {
   try {
-    showLoading(true);
-    
-    const { data, error } = await PropuestasService.getAllProposals();
-    
-    if (error) {
-      console.error('Error al cargar propuestas:', error);
-      showError('Error al cargar las propuestas');
-      return;
+    const response = await fetch('/api/propuestas');
+    if (response.ok) {
+      propuestas = await response.json();
+      filteredPropuestas = [...propuestas];
+      renderPropuestas();
+    } else {
+      console.error('Error al cargar propuestas');
     }
-
-    allProposals = data || [];
-    filteredProposals = [...allProposals];
-    
-    renderProposals();
-    showLoading(false);
-    
   } catch (error) {
-    console.error('Error inesperado:', error);
-    showError('Error inesperado al cargar las propuestas');
-    showLoading(false);
+    console.error('Error:', error);
   }
 }
 
 // Renderizar propuestas en la tabla
-function renderProposals(): void {
-  if (!propuestasTableBody) return;
+function renderPropuestas(): void {
+  if (!elements.tbody || !elements.loadingState || !elements.emptyState) return;
 
-  if (filteredProposals.length === 0) {
-    showEmptyState(true);
+  elements.loadingState.classList.add('hidden');
+
+  if (filteredPropuestas.length === 0) {
+    elements.emptyState.classList.remove('hidden');
+    elements.tbody.innerHTML = '';
     return;
   }
 
-  showEmptyState(false);
-
-  const rows = filteredProposals.map(proposal => `
+  elements.emptyState.classList.add('hidden');
+  
+  elements.tbody.innerHTML = filteredPropuestas.map(propuesta => `
     <tr class="hover:bg-gray-50">
-      <td class="px-4 py-3">
-        <a href="/${proposal.codigo_propuesta}" class="text-blue-600 hover:text-blue-800 font-medium">
-          ${proposal.codigo_propuesta}
-        </a>
+      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+        ${propuesta.codigo_propuesta}
       </td>
-      <td class="px-4 py-3">${proposal.nombre_proyecto}</td>
-      <td class="px-4 py-3">${proposal.cliente_nombre}</td>
-      <td class="px-4 py-3">${proposal.cliente_empresa}</td>
-      <td class="px-4 py-3">${formatDate(proposal.fecha_propuesta || proposal.created_at || '')}</td>
-      <td class="px-4 py-3">${proposal.valor_proyecto || 'No especificado'}</td>
-      <td class="px-4 py-3">
-        <div class="flex space-x-2">
-          <button
-            onclick="viewProposalDetails('${proposal.codigo_propuesta}')"
-            class="btn btn-secondary btn-small"
-          >
-            👁️ Ver
-          </button>
-          <button
-            onclick="editProposal('${proposal.codigo_propuesta}')"
-            class="btn btn-primary btn-small"
-          >
-            ✏️ Editar
-          </button>
-          <button
-            onclick="deleteProposal(${proposal.id || 0})"
-            class="btn btn-danger btn-small"
-          >
-            🗑️ Eliminar
-          </button>
-        </div>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        ${propuesta.nombre_proyecto}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        ${propuesta.cliente_nombre}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        ${propuesta.cliente_empresa}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        ${propuesta.fecha_propuesta ? new Date(propuesta.fecha_propuesta).toLocaleDateString() : '-'}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        ${propuesta.valor_proyecto || '-'}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+        <button
+          onclick="window.viewDetails('${propuesta.id}')"
+          class="text-blue-600 hover:text-blue-900"
+        >
+          Ver
+        </button>
+        <button
+          onclick="window.editProposal('${propuesta.id}')"
+          class="text-green-600 hover:text-green-900"
+        >
+          Editar
+        </button>
+        <button
+          onclick="window.deleteProposal('${propuesta.id}')"
+          class="text-red-600 hover:text-red-900"
+        >
+          Eliminar
+        </button>
       </td>
     </tr>
   `).join('');
-
-  propuestasTableBody.innerHTML = rows;
 }
 
-// Manejar búsqueda
-function handleSearch(): void {
-  const searchTerm = searchInput.value.toLowerCase();
-  
-  filteredProposals = allProposals.filter(proposal => 
-    proposal.nombre_proyecto.toLowerCase().includes(searchTerm) ||
-    proposal.cliente_nombre.toLowerCase().includes(searchTerm) ||
-    proposal.cliente_empresa.toLowerCase().includes(searchTerm) ||
-    proposal.codigo_propuesta.toLowerCase().includes(searchTerm)
-  );
-  
-  renderProposals();
-}
+// Filtrar propuestas
+function filterPropuestas(): void {
+  if (!elements.searchInput || !elements.dateFilter) return;
 
-// Manejar filtro de fecha
-function handleDateFilter(): void {
-  const filterValue = dateFilter.value;
-  const today = new Date();
-  
-  filteredProposals = allProposals.filter(proposal => {
-    const proposalDate = new Date(proposal.fecha_propuesta || proposal.created_at || '');
-    
-    switch (filterValue) {
-      case 'today':
-        return isSameDay(proposalDate, today);
-      case 'week':
-        return isSameWeek(proposalDate, today);
-      case 'month':
-        return isSameMonth(proposalDate, today);
-      case 'year':
-        return isSameYear(proposalDate, today);
-      default:
-        return true;
+  const searchTerm = elements.searchInput.value.toLowerCase();
+  const dateFilter = elements.dateFilter.value;
+
+  filteredPropuestas = propuestas.filter(propuesta => {
+    // Filtro de búsqueda
+    const matchesSearch = 
+      propuesta.nombre_proyecto.toLowerCase().includes(searchTerm) ||
+      propuesta.cliente_nombre.toLowerCase().includes(searchTerm) ||
+      propuesta.cliente_empresa.toLowerCase().includes(searchTerm);
+
+    // Filtro de fecha
+    let matchesDate = true;
+    if (dateFilter && propuesta.fecha_propuesta) {
+      const propuestaDate = new Date(propuesta.fecha_propuesta);
+      const today = new Date();
+      
+      switch (dateFilter) {
+        case 'today':
+          matchesDate = propuestaDate.toDateString() === today.toDateString();
+          break;
+        case 'week':
+          const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+          matchesDate = propuestaDate >= weekAgo;
+          break;
+        case 'month':
+          matchesDate = propuestaDate.getMonth() === today.getMonth() && 
+                       propuestaDate.getFullYear() === today.getFullYear();
+          break;
+        case 'year':
+          matchesDate = propuestaDate.getFullYear() === today.getFullYear();
+          break;
+      }
     }
+
+    return matchesSearch && matchesDate;
   });
-  
-  renderProposals();
+
+  renderPropuestas();
 }
 
-// Manejar ordenamiento
-function handleSort(): void {
-  const sortValue = sortBy.value;
+// Ordenar propuestas
+function sortPropuestas(): void {
+  if (!elements.sortBy) return;
+
+  const sortBy = elements.sortBy.value;
   
-  filteredProposals.sort((a, b) => {
-    let aValue: any, bValue: any;
-    
-    switch (sortValue) {
+  filteredPropuestas.sort((a, b) => {
+    switch (sortBy) {
       case 'nombre_proyecto':
-        aValue = a.nombre_proyecto.toLowerCase();
-        bValue = b.nombre_proyecto.toLowerCase();
-        break;
+        return a.nombre_proyecto.localeCompare(b.nombre_proyecto);
       case 'cliente_nombre':
-        aValue = a.cliente_nombre.toLowerCase();
-        bValue = b.cliente_nombre.toLowerCase();
-        break;
+        return a.cliente_nombre.localeCompare(b.cliente_nombre);
       case 'fecha_propuesta':
-        aValue = new Date(a.fecha_propuesta || a.created_at || '');
-        bValue = new Date(b.fecha_propuesta || b.created_at || '');
-        break;
+        if (!a.fecha_propuesta) return 1;
+        if (!b.fecha_propuesta) return -1;
+        return new Date(a.fecha_propuesta).getTime() - new Date(b.fecha_propuesta).getTime();
       default:
-        aValue = new Date(a.created_at || '');
-        bValue = new Date(b.created_at || '');
+        if (!a.created_at || !b.created_at) return 0;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     }
-    
-    if (aValue < bValue) return -1;
-    if (aValue > bValue) return 1;
-    return 0;
   });
-  
-  renderProposals();
+
+  renderPropuestas();
 }
 
-// Funciones de utilidad
-function formatDate(dateString: string): string {
-  if (!dateString) return 'No especificada';
-  
+// Ver detalles de una propuesta
+export async function viewDetails(id: string): Promise<void> {
   try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  } catch {
-    return 'Fecha inválida';
-  }
-}
+    const response = await fetch(`/api/propuestas/${id}`);
+    if (response.ok) {
+      const propuesta = await response.json();
+      
+      if (!elements.modalContent) return;
 
-function isSameDay(date1: Date, date2: Date): boolean {
-  return date1.getDate() === date2.getDate() &&
-         date1.getMonth() === date2.getMonth() &&
-         date1.getFullYear() === date2.getFullYear();
-}
-
-function isSameWeek(date1: Date, date2: Date): boolean {
-  const week1 = getWeekNumber(date1);
-  const week2 = getWeekNumber(date2);
-  return week1 === week2 && date1.getFullYear() === date2.getFullYear();
-}
-
-function isSameMonth(date1: Date, date2: Date): boolean {
-  return date1.getMonth() === date2.getMonth() &&
-         date1.getFullYear() === date2.getFullYear();
-}
-
-function isSameYear(date1: Date, date2: Date): boolean {
-  return date1.getFullYear() === date2.getFullYear();
-}
-
-function getWeekNumber(date: Date): number {
-  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-  const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
-  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-}
-
-// Funciones de UI
-function showLoading(show: boolean): void {
-  if (loadingState) {
-    loadingState.style.display = show ? 'block' : 'none';
-  }
-}
-
-function showEmptyState(show: boolean): void {
-  if (emptyState) {
-    emptyState.style.display = show ? 'block' : 'none';
-  }
-}
-
-function showError(message: string): void {
-  alert(message); // En producción, usar un toast o notificación más elegante
-}
-
-// Funciones globales para los botones
-declare global {
-  interface Window {
-    viewProposalDetails: (code: string) => void;
-    editProposal: (code: string) => void;
-    deleteProposal: (id: number) => void;
-  }
-}
-
-// Ver detalles de propuesta
-window.viewProposalDetails = async function(code: string): Promise<void> {
-  try {
-    const { data, error } = await PropuestasService.getProposalByCode(code);
-    
-    if (error || !data) {
-      alert('Error al cargar los detalles de la propuesta');
-      return;
+      elements.modalContent.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h4 class="font-semibold text-gray-700">Código:</h4>
+            <p class="text-gray-900">${propuesta.codigo_propuesta}</p>
+          </div>
+          <div>
+            <h4 class="font-semibold text-gray-700">Proyecto:</h4>
+            <p class="text-gray-900">${propuesta.nombre_proyecto}</p>
+          </div>
+          <div>
+            <h4 class="font-semibold text-gray-700">Cliente:</h4>
+            <p class="text-gray-900">${propuesta.cliente_nombre}</p>
+          </div>
+          <div>
+            <h4 class="font-semibold text-gray-700">Empresa:</h4>
+            <p class="text-gray-900">${propuesta.cliente_empresa}</p>
+          </div>
+          <div>
+            <h4 class="font-semibold text-gray-700">Fecha:</h4>
+            <p class="text-gray-900">${propuesta.fecha_propuesta ? new Date(propuesta.fecha_propuesta).toLocaleDateString() : '-'}</p>
+          </div>
+          <div>
+            <h4 class="font-semibold text-gray-700">Valor:</h4>
+            <p class="text-gray-900">${propuesta.valor_proyecto || '-'}</p>
+          </div>
+        </div>
+        ${propuesta.texto_introductorio ? `
+          <div>
+            <h4 class="font-semibold text-gray-700">Texto Introductorio:</h4>
+            <p class="text-gray-900">${propuesta.texto_introductorio}</p>
+          </div>
+        ` : ''}
+        ${propuesta.resumen_ejecutivo ? `
+          <div>
+            <h4 class="font-semibold text-gray-700">Resumen Ejecutivo:</h4>
+            <p class="text-gray-900">${propuesta.resumen_ejecutivo}</p>
+          </div>
+        ` : ''}
+      `;
+      
+      if (elements.detailsModal) {
+        elements.detailsModal.classList.remove('hidden');
+      }
     }
-    
-    // Aquí puedes implementar la lógica para mostrar el modal con los detalles
-    console.log('Detalles de la propuesta:', data);
-    alert(`Detalles de la propuesta ${code} cargados. Revisa la consola para más información.`);
-    
   } catch (error) {
-    console.error('Error al cargar detalles:', error);
-    alert('Error al cargar los detalles de la propuesta');
+    console.error('Error:', error);
+    alert('Error al cargar los detalles');
   }
-};
+}
+
+// Cerrar modal
+export function closeModal(): void {
+  if (elements.detailsModal) {
+    elements.detailsModal.classList.add('hidden');
+  }
+}
 
 // Editar propuesta
-window.editProposal = function(code: string): void {
-  window.location.href = `/editar-propuesta/${code}`;
-};
+export function editProposal(id: string): void {
+  // Redirigir a la página de edición
+  window.location.href = `/editar-propuesta/${id}`;
+}
 
 // Eliminar propuesta
-window.deleteProposal = async function(id: number): Promise<void> {
-  if (!confirm('¿Estás seguro de que quieres eliminar esta propuesta?')) {
-    return;
-  }
-  
-  try {
-    const { error } = await PropuestasService.deleteProposal(id);
-    
-    if (error) {
-      alert(`Error al eliminar la propuesta: ${error.message}`);
-      return;
+export async function deleteProposal(id: string): Promise<void> {
+  if (confirm('¿Estás seguro de que quieres eliminar esta propuesta?')) {
+    try {
+      const response = await fetch(`/api/propuestas/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        alert('Propuesta eliminada exitosamente');
+        loadPropuestas(); // Recargar la lista
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al eliminar la propuesta');
     }
-    
-    alert('Propuesta eliminada exitosamente');
-    loadProposals(); // Recargar la lista
-    
-  } catch (error) {
-    console.error('Error al eliminar:', error);
-    alert('Error al eliminar la propuesta');
   }
-};
+}
+
+// Hacer funciones disponibles globalmente
+declare global {
+  interface Window {
+    viewDetails: (id: string) => Promise<void>;
+    closeModal: () => void;
+    editProposal: (id: string) => void;
+    deleteProposal: (id: string) => Promise<void>;
+  }
+}
+
+window.viewDetails = viewDetails;
+window.closeModal = closeModal;
+window.editProposal = editProposal;
+window.deleteProposal = deleteProposal;
