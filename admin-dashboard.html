@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Pixels - Panel de Administración</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #08002B 0%, #CC3983 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .admin-header h1 {
+            color: #08002B;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .admin-header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px 15px 0 0;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .tab.active {
+            background: #F27E2A;
+            color: white;
+        }
+
+        .tab:hover {
+            background: #d86621;
+            color: white;
+        }
+
+        .tab-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 0 0 15px 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h3 {
+            color: #08002B;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #F27E2A;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #F27E2A;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .deliverables-container {
+            border: 2px dashed #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .deliverable-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .deliverable-item input {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #F27E2A;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #d86621;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        /* Panel de Logs */
+        .logs-panel {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 12px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .logs-header {
+            background: #08002B;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logs-header h4 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+
+        .logs-content {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #ffffff;
+        }
+
+        .log-entry {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            border-left: 4px solid #ccc;
+        }
+
+        .log-entry.log-info {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .log-entry.log-success {
+            background: #e8f5e8;
+            border-left-color: #4caf50;
+        }
+
+        .log-entry.log-warning {
+            background: #fff3e0;
+            border-left-color: #ff9800;
+        }
+
+        .log-entry.log-error {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+
+        .log-time {
+            color: #666;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .log-message {
+            color: #333;
+        }
+
+        /* Lista de propuestas */
+        .proposals-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .proposal-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 5px solid #F27E2A;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .proposal-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .proposal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .proposal-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #08002B;
+        }
+
+        .proposal-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .proposal-client {
+            color: #F27E2A;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .proposal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #08002B;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e1e5e9;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .proposal-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .proposal-actions {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🚀 Cloud Pixels - Panel de Administración</h1>
+            <p>Sistema de Gestión de Propuestas Personalizadas</p>
+            <div style="margin-top: 15px; padding: 15px; background: rgba(242, 126, 42, 0.1); border-radius: 8px; border-left: 4px solid #F27E2A;">
+                <p style="margin: 0; color: #08002B; font-size: 0.95em;">
+                    <strong>💡 ¿Cómo funciona?</strong> Al generar una propuesta, se crea un enlace único que se abre automáticamente. 
+                    Los datos se cargan en tiempo real desde la base de datos, por lo que los cambios se reflejan inmediatamente.
+                </p>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('create')">📝 Crear Nueva Propuesta</button>
+            <button class="tab" onclick="showTab('list')">📋 Lista de Propuestas</button>
+        </div>
+
+        <!-- Tab: Crear Nueva Propuesta -->
+        <div id="create-tab" class="tab-content active">
+            <form id="proposalForm">
+                <!-- Información Básica del Proyecto -->
+                <div class="form-section">
+                    <h3>📋 Información Básica del Proyecto</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="projectName">Nombre del Proyecto *</label>
+                            <input type="text" id="projectName" name="projectName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="proposalDate">Fecha de Propuesta *</label>
+                            <input type="date" id="proposalDate" name="proposalDate" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clientName">Nombre del Cliente *</label>
+                            <input type="text" id="clientName" name="clientName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clientCompany">Empresa del Cliente *</label>
+                            <input type="text" id="clientCompany" name="clientCompany" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen Ejecutivo -->
+                <div class="form-section">
+                    <h3>📊 Resumen Ejecutivo</h3>
+                    <div class="form-group">
+                        <label for="executiveSummary">Descripción del proyecto y propuesta de valor *</label>
+                        <textarea id="executiveSummary" name="executiveSummary" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Objetivos y Alcance -->
+                <div class="form-section">
+                    <h3>🎯 Objetivos & Alcance</h3>
+                    <div class="form-group">
+                        <label for="objectivesScope">Objetivos específicos y alcance del trabajo *</label>
+                        <textarea id="objectivesScope" name="objectivesScope" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Servicios -->
+                <div class="form-section">
+                    <h3>🛠️ Servicios Incluidos</h3>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service1" name="services" value="Website Design">
+                            <label for="service1">Website Design</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service2" name="services" value="Landing Page">
+                            <label for="service2">Landing Page</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service3" name="services" value="Logo & Branding">
+                            <label for="service3">Logo & Branding</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service4" name="services" value="Email Marketing">
+                            <label for="service4">Email Marketing</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service5" name="services" value="SEO Review & Consulting">
+                            <label for="service5">SEO Review & Consulting</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="service6" name="services" value="Ecommerce Site">
+                            <label for="service6">Ecommerce Site</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entregables -->
+                <div class="form-section">
+                    <h3>📦 Entregables</h3>
+                    <div class="deliverables-container">
+                        <div id="deliverablesList">
+                            <div class="deliverable-item">
+                                <input type="text" name="deliverables[]" placeholder="Entregable 1" required>
+                                <button type="button" class="btn btn-danger btn-small" onclick="removeDeliverable(this)">❌</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addDeliverable()">➕ Agregar Entregable</button>
+                    </div>
+                </div>
+
+                <!-- Propuesta Económica -->
+                <div class="form-section">
+                    <h3>💰 Propuesta Económica</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="projectValue">Valor del Proyecto *</label>
+                            <input type="text" id="projectValue" name="projectValue" placeholder="$X,XXX" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentTerms">Condiciones de Pago *</label>
+                        <textarea id="paymentTerms" name="paymentTerms" placeholder="• Pago inicial del 50% al aceptar la propuesta&#10;• Saldo restante al finalizar el proyecto&#10;• Incluye todos los servicios y entregables definidos" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Información de Contacto -->
+                <div class="form-section">
+                    <h3>📞 Información de Contacto</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contactEmail">Email de Contacto</label>
+                            <input type="email" id="contactEmail" name="contactEmail" placeholder="tu.correo@cloudpixels.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactWhatsApp">WhatsApp</label>
+                            <input type="text" id="contactWhatsApp" name="contactWhatsApp" placeholder="+XX XXX XXX XXXX">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Texto Introductorio -->
+                <div class="form-section">
+                    <h3>📝 Texto Introductorio</h3>
+                    <div class="form-group">
+                        <label for="introText">Texto introductorio de la propuesta</label>
+                        <textarea id="introText" name="introText" placeholder="Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.">Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.</textarea>
+                    </div>
+                </div>
+
+                <!-- Descripción de la Empresa -->
+                <div class="form-section">
+                    <h3>🏢 Descripción de la Empresa</h3>
+                    <div class="form-group">
+                        <label for="companyDescription">Descripción de Cloud Pixels</label>
+                        <textarea id="companyDescription" name="companyDescription" placeholder="Con más de 9 años de experiencia, Cloud Pixels es un equipo global...">Con más de 9 años de experiencia, Cloud Pixels es un equipo global con oficinas en Honduras, Estados Unidos, Estonia y Panamá. Combinamos talento de diseño y desarrollo de todo el mundo para crear soluciones digitales excepcionales y escalables.</textarea>
+                    </div>
+                </div>
+
+                <!-- Horarios de Atención -->
+                <div class="form-section">
+                    <h3>🕒 Horarios de Atención</h3>
+                    <div class="form-group">
+                        <label for="attentionHours">Horarios de atención al cliente</label>
+                        <textarea id="attentionHours" name="attentionHours" placeholder="Nuestro equipo está disponible...">Nuestro equipo está disponible de lunes a viernes de 9:00 a.m. a 6:00 p.m. (aplican días feriados). Para consultas fuera de este horario, responderemos al siguiente día laboral.</textarea>
+                    </div>
+                </div>
+
+                <!-- Términos y Condiciones -->
+                <div class="form-section">
+                    <h3>📋 Términos y Condiciones</h3>
+                    <div class="form-group">
+                        <label for="termsConditions">Términos y condiciones de la propuesta</label>
+                        <textarea id="termsConditions" name="termsConditions" placeholder="Al aceptar esta propuesta...">Al aceptar esta propuesta, el cliente se compromete a abonar un anticipo del 50% para iniciar el proyecto. El saldo restante se pagará al finalizar, antes del lanzamiento.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="validityTerms">Términos de validez</label>
+                        <textarea id="validityTerms" name="validityTerms" placeholder="Esta propuesta es válida...">Esta propuesta es válida durante 30 días a partir de la fecha de emisión. Los servicios de mantenimiento, hosting o funcionalidades adicionales no mencionadas aquí se considerarán extras opcionales.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="acceptanceText">Texto de aceptación</label>
+                        <textarea id="acceptanceText" name="acceptanceText" placeholder="¿Listo para comenzar?">¿Listo para comenzar? Haz clic en el botón de abajo para aceptar la propuesta. Podrás firmar digitalmente y realizar el pago inicial.</textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">🚀 Generar Propuesta (Se abrirá automáticamente)</button>
+                
+                <div class="success-message" id="successMessage">
+                    <div id="successContent">
+                        ✅ ¡Propuesta generada exitosamente! Se ha guardado en la base de datos.
+                    </div>
+                    <div id="proposalLinkSection" style="display: none; margin-top: 15px;">
+                        <p style="margin-bottom: 10px;"><strong>🌐 Tu propuesta está lista para ver:</strong></p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                            <a id="openProposalBtn" href="#" target="_blank" class="btn btn-primary" style="text-decoration: none;">
+                                🚀 Abrir Propuesta Ahora
+                            </a>
+                            <button type="button" class="btn btn-secondary" onclick="copyProposalLink()">
+                                📋 Copiar Enlace
+                            </button>
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                            <strong>Código de la propuesta:</strong> <code id="proposalCodeDisplay"></code>
+                        </div>
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(40, 167, 69, 0.1); border-radius: 6px; border-left: 4px solid #28a745;">
+                            <p style="margin: 0; color: #155724; font-size: 0.9em;">
+                                <strong>⏰ Redirección automática:</strong> Se abrirá la propuesta en una nueva pestaña en <span class="countdown">3</span> segundos...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="error-message" id="errorMessage">
+                    ❌ Error al generar la propuesta. Por favor, verifica los datos e intenta nuevamente.
+                </div>
+                
+                <!-- Panel de Logs en Tiempo Real -->
+                <div class="logs-panel" id="logsPanel">
+                    <div class="logs-header">
+                        <h4>📊 Logs del Sistema</h4>
+                        <button type="button" class="btn btn-small btn-secondary" onclick="clearLogs()">🧹 Limpiar</button>
+                        <button type="button" class="btn btn-small btn-info" onclick="exportLogs()">📥 Exportar</button>
+                    </div>
+                    <div class="logs-content" id="logsContent">
+                        <div class="log-entry log-info">
+                            <span class="log-time">[Sistema]</span>
+                            <span class="log-message">Panel de logs inicializado. Los logs se mostrarán aquí en tiempo real.</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tab: Lista de Propuestas -->
+        <div id="list-tab" class="tab-content">
+            <div class="form-section">
+                <h3>📋 Propuestas Creadas</h3>
+                <div id="proposalsList" class="proposals-list">
+                    <!-- Las propuestas se cargarán dinámicamente aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar propuesta -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Editar Propuesta</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editProposalId" name="proposalId">
+                <!-- Los campos del formulario se clonarán aquí -->
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para vista previa -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👁️ Vista Previa de la Propuesta</h2>
+                <span class="close" onclick="closePreviewModal()">&times;</span>
+            </div>
+            <div id="previewContent" style="max-height: 60vh; overflow-y: auto; border: 1px solid #e1e5e9; padding: 20px; border-radius: 8px;">
+                <!-- El contenido de la propuesta se mostrará aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script>
+        // Sistema de base de datos Supabase
+        let db = null;
+
+        // Inicializar Supabase cuando se carga la página
+        async function initSupabase() {
+            showLog('🔧 Iniciando inicialización de base de datos...', 'info');
+            
+            try {
+                showLog('📡 Creando cliente de Supabase...', 'info');
+                db = new SupabaseClient();
+                
+                showLog('🔌 Conectando a Supabase...', 'info');
+                const startTime = Date.now();
+                await db.init();
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                showLog(`✅ Supabase inicializado correctamente en ${duration}ms`, 'success');
+                showLog('🌐 URL de Supabase: https://cgchcozsszowdizlupkc.supabase.co', 'info');
+                
+                showLog('📋 Cargando lista de propuestas existentes...', 'info');
+                await loadProposalsList();
+                showLog('✅ Lista de propuestas cargada correctamente', 'success');
+                
+            } catch (error) {
+                showLog(`❌ ERROR inicializando Supabase: ${error.message}`, 'error');
+                showLog(`🔍 Stack trace: ${error.stack}`, 'error');
+                showLog(`📊 Tipo de error: ${error.name}`, 'error');
+                
+                // Información adicional para debugging
+                if (error.code) {
+                    showLog(`🔢 Código de error: ${error.code}`, 'error');
+                }
+                if (error.details) {
+                    showLog(`📋 Detalles: ${error.details}`, 'error');
+                }
+                if (error.hint) {
+                    showLog(`💡 Sugerencia: ${error.hint}`, 'error');
+                }
+                
+                showError('Error conectando con la base de datos');
+            }
+        }
+
+        // Funciones de UI
+        function showTab(tabName) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Mostrar la pestaña seleccionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+
+            // Si es la pestaña de lista, cargar las propuestas
+            if (tabName === 'list') {
+                loadProposalsList();
+            }
+        }
+
+        function addDeliverable() {
+            const container = document.getElementById('deliverablesList');
+            const newItem = document.createElement('div');
+            newItem.className = 'deliverable-item';
+            newItem.innerHTML = `
+                <input type="text" name="deliverables[]" placeholder="Nuevo entregable" required>
+                <button type="button" class="btn btn-danger btn-small" onclick="removeDeliverable(this)">❌</button>
+            `;
+            container.appendChild(newItem);
+        }
+
+        function removeDeliverable(button) {
+            const items = document.querySelectorAll('.deliverable-item');
+            if (items.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            console.error('❌ ERROR:', message);
+        }
+
+        function showSuccess(message) {
+            document.getElementById('successContent').textContent = message;
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            console.log('✅ ÉXITO:', message);
+        }
+
+        function showProposalLink(proposalUrl, proposalCode) {
+            // Mostrar la sección del enlace
+            document.getElementById('proposalLinkSection').style.display = 'block';
+            
+            // Configurar el botón de abrir propuesta
+            const openBtn = document.getElementById('openProposalBtn');
+            openBtn.href = proposalUrl;
+            openBtn.onclick = function(e) {
+                e.preventDefault();
+                window.open(proposalUrl, '_blank');
+                showLog('🚀 Propuesta abierta manualmente', 'success');
+            };
+            
+            // Mostrar el código de la propuesta
+            document.getElementById('proposalCodeDisplay').textContent = proposalCode;
+            
+            // Guardar la URL para poder copiarla
+            window.currentProposalUrl = proposalUrl;
+        }
+
+        function startAutoRedirect(proposalUrl, seconds) {
+            let countdown = seconds;
+            const countdownElement = document.querySelector('#proposalLinkSection .countdown');
+            
+            const timer = setInterval(() => {
+                countdown--;
+                
+                if (countdownElement) {
+                    countdownElement.textContent = countdown;
+                }
+                
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    window.open(proposalUrl, '_blank');
+                    showLog('🚀 Redirección automática completada', 'success');
+                }
+            }, 1000);
+        }
+
+        function copyProposalLink() {
+            if (!window.currentProposalUrl) {
+                alert('No hay enlace de propuesta disponible');
+                return;
+            }
+
+            navigator.clipboard.writeText(window.currentProposalUrl).then(() => {
+                // Cambiar temporalmente el texto del botón
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ ¡Copiado!';
+                btn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, 2000);
+                
+                showLog('📋 Enlace copiado al portapapeles', 'success');
+            }).catch(() => {
+                // Fallback para navegadores que no soportan clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = window.currentProposalUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                alert('¡Enlace copiado al portapapeles!\n\n' + window.currentProposalUrl);
+            });
+        }
+
+        function showLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}`;
+            
+            // Mostrar en consola del navegador
+            switch(type) {
+                case 'error':
+                    console.error('❌', logMessage);
+                    break;
+                case 'success':
+                    console.log('✅', logMessage);
+                    break;
+                case 'warning':
+                    console.warn('⚠️', logMessage);
+                    break;
+                default:
+                    console.log('ℹ️', logMessage);
+            }
+            
+            // También mostrar en la consola del navegador para debugging
+            if (type === 'error') {
+                console.error('🔍 DEBUG INFO:', {
+                    timestamp: new Date().toISOString(),
+                    message: message,
+                    userAgent: navigator.userAgent,
+                    url: window.location.href
+                });
+            }
+            
+            // Mostrar en el panel visual de logs
+            addLogToPanel(message, type, timestamp);
+        }
+
+        function addLogToPanel(message, type, timestamp) {
+            const logsContent = document.getElementById('logsContent');
+            if (!logsContent) return;
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            
+            logEntry.innerHTML = `
+                <span class="log-time">[${timestamp}]</span>
+                <span class="log-message">${message}</span>
+            `;
+            
+            logsContent.appendChild(logEntry);
+            
+            // Auto-scroll al final
+            logsContent.scrollTop = logsContent.scrollHeight;
+            
+            // Limitar el número de logs para evitar sobrecarga
+            const maxLogs = 100;
+            while (logsContent.children.length > maxLogs) {
+                logsContent.removeChild(logsContent.firstChild);
+            }
+        }
+
+        function clearLogs() {
+            const logsContent = document.getElementById('logsContent');
+            if (logsContent) {
+                logsContent.innerHTML = `
+                    <div class="log-entry log-info">
+                        <span class="log-time">[Sistema]</span>
+                        <span class="log-message">Logs limpiados. Panel reiniciado.</span>
+                    </div>
+                `;
+            }
+        }
+
+        function exportLogs() {
+            const logsContent = document.getElementById('logsContent');
+            if (!logsContent) return;
+            
+            const logs = Array.from(logsContent.children).map(log => {
+                const time = log.querySelector('.log-time').textContent;
+                const message = log.querySelector('.log-message').textContent;
+                return `${time} ${message}`;
+            }).join('\n');
+            
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `logs_cloud_pixels_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showLog('📥 Logs exportados exitosamente', 'success');
+        }
+
+        async function loadProposalsList() {
+            if (!db) {
+                showLog('❌ Base de datos no inicializada', 'error');
+                return;
+            }
+
+            try {
+                showLog('📋 Consultando propuestas en la base de datos...', 'info');
+                const startTime = Date.now();
+                
+                const proposals = await db.getAllProposals();
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                showLog(`✅ ${proposals.length} propuestas cargadas en ${duration}ms`, 'success');
+                
+                const container = document.getElementById('proposalsList');
+
+                if (proposals.length === 0) {
+                    showLog('📭 No hay propuestas en la base de datos', 'info');
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>📭 No hay propuestas creadas</h3>
+                            <p>Comienza creando tu primera propuesta en la pestaña "Crear Nueva Propuesta"</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                showLog('🎨 Renderizando lista de propuestas...', 'info');
+                container.innerHTML = proposals.map(proposal => `
+                    <div class="proposal-card">
+                        <div class="proposal-header">
+                            <div>
+                                <div class="proposal-title">${proposal.nombre_proyecto}</div>
+                                <div class="proposal-client">${proposal.cliente_nombre} - ${proposal.cliente_empresa}</div>
+                                <div class="proposal-code"><strong>Código:</strong> <code>${proposal.codigo_propuesta || 'N/A'}</code></div>
+                            </div>
+                            <div class="proposal-date">${new Date(proposal.created_at).toLocaleDateString('es-ES')}</div>
+                        </div>
+                        <div class="proposal-actions">
+                            <button class="btn btn-primary btn-small" onclick="openProposal('${proposal.codigo_propuesta}')">🚀 Abrir</button>
+                            <button class="btn btn-secondary btn-small" onclick="previewProposal('${proposal.id}')">👁️ Vista Previa</button>
+                            <button class="btn btn-secondary btn-small" onclick="editProposal('${proposal.id}')">✏️ Editar</button>
+                            <button class="btn btn-info btn-small" onclick="copyProposalLink('${proposal.codigo_propuesta}')">🔗 Copiar Enlace</button>
+                            <button class="btn btn-danger btn-small" onclick="deleteProposal('${proposal.id}')">🗑️ Eliminar</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                showLog('✅ Lista de propuestas renderizada correctamente', 'success');
+                
+            } catch (error) {
+                showLog(`❌ ERROR cargando propuestas: ${error.message}`, 'error');
+                showLog(`🔍 Stack trace: ${error.stack}`, 'error');
+                showError('Error cargando las propuestas');
+            }
+        }
+
+        async function previewProposal(proposalId) {
+            if (!db) return;
+            
+            try {
+                const proposal = await db.getProposalById(proposalId);
+                if (!proposal) return;
+
+                // Mostrar vista previa simple con los datos de la propuesta
+                const previewContent = `
+                    <div style="padding: 20px;">
+                        <h2 style="color: #08002B; margin-bottom: 20px;">👁️ Vista Previa de la Propuesta</h2>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <strong>📋 Proyecto:</strong> ${proposal.nombre_proyecto}
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <strong>👤 Cliente:</strong> ${proposal.cliente_nombre} - ${proposal.cliente_empresa}
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <strong>📅 Fecha:</strong> ${new Date(proposal.fecha_propuesta).toLocaleDateString('es-ES')}
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <strong>💰 Valor:</strong> ${proposal.valor_proyecto}
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <strong>🔑 Código:</strong> <code>${proposal.codigo_propuesta}</code>
+                        </div>
+                        
+                        <div style="margin-top: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <p><strong>💡 Para ver la propuesta completa:</strong></p>
+                            <button class="btn btn-primary" onclick="openProposal('${proposal.codigo_propuesta}')" style="margin-top: 10px;">
+                                🚀 Abrir Propuesta Completa
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('previewContent').innerHTML = previewContent;
+                document.getElementById('previewModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error cargando propuesta:', error);
+                showError('Error cargando la propuesta');
+            }
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+
+        async function editProposal(proposalId) {
+            if (!db) return;
+            
+            try {
+                const proposal = await db.getProposalById(proposalId);
+                if (!proposal) return;
+
+                // Llenar el formulario de edición
+                document.getElementById('editProposalId').value = proposalId;
+                
+                // Clonar el formulario original
+                const originalForm = document.getElementById('proposalForm');
+                const editForm = document.getElementById('editForm');
+                editForm.innerHTML = originalForm.innerHTML;
+                editForm.appendChild(document.getElementById('editProposalId'));
+
+                // Llenar los campos con los datos de la propuesta
+                Object.keys(proposal).forEach(key => {
+                    const field = editForm.querySelector(`[name="${key}"]`);
+                    if (field) {
+                        if (key === 'servicios_seleccionados') {
+                            // Manejar checkboxes de servicios
+                            proposal.servicios_seleccionados.forEach(service => {
+                                const checkbox = editForm.querySelector(`input[value="${service}"]`);
+                                if (checkbox) checkbox.checked = true;
+                            });
+                        } else if (key === 'entregables') {
+                            // Manejar entregables
+                            const deliverablesContainer = editForm.querySelector('#deliverablesList');
+                            deliverablesContainer.innerHTML = '';
+                            proposal.entregables.forEach((deliverable, index) => {
+                                const newItem = document.createElement('div');
+                                newItem.className = 'deliverable-item';
+                                newItem.innerHTML = `
+                                    <input type="text" name="deliverables[]" value="${deliverable}" required>
+                                    <button type="button" class="btn btn-danger btn-small" onclick="removeDeliverable(this)">❌</button>
+                                `;
+                                deliverablesContainer.appendChild(newItem);
+                            });
+                        } else {
+                            field.value = proposal[key];
+                        }
+                    }
+                });
+
+                // Mostrar modal
+                document.getElementById('editModal').style.display = 'block';
+                
+                // Mostrar enlace actualizado de la propuesta
+                if (proposal.codigo_propuesta) {
+                    const proposalUrl = `${window.location.origin}${window.location.pathname.replace('admin-dashboard.html', 'cloud_pixels_proposal_ui_v3.html')}?propuesta=${proposal.codigo_propuesta}`;
+                    showProposalLink(proposalUrl, proposal.codigo_propuesta);
+                }
+            } catch (error) {
+                console.error('Error cargando propuesta para editar:', error);
+                showError('Error cargando la propuesta para editar');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        async function deleteProposal(proposalId) {
+            if (!db) return;
+            
+            if (confirm('¿Estás seguro de que quieres eliminar esta propuesta? Esta acción no se puede deshacer.')) {
+                try {
+                    await db.deleteProposal(proposalId);
+                    await loadProposalsList();
+                } catch (error) {
+                    console.error('Error eliminando propuesta:', error);
+                    showError('Error eliminando la propuesta');
+                }
+            }
+        }
+
+
+
+        function openProposal(proposalCode) {
+            if (!proposalCode) {
+                alert('Esta propuesta no tiene un código válido');
+                return;
+            }
+
+            const currentUrl = window.location.origin + window.location.pathname;
+            const proposalUrl = currentUrl.replace('admin-dashboard.html', 'cloud_pixels_proposal_ui_v3.html') + '?propuesta=' + proposalCode;
+            
+            // Abrir la propuesta en una nueva pestaña
+            window.open(proposalUrl, '_blank');
+            
+            showLog(`🚀 Propuesta abierta en nueva pestaña: ${proposalCode}`, 'success');
+        }
+
+        function copyProposalLink(proposalCode) {
+            if (!proposalCode) {
+                alert('Esta propuesta no tiene un código válido');
+                return;
+            }
+
+            const currentUrl = window.location.origin + window.location.pathname;
+            const proposalUrl = currentUrl.replace('admin-dashboard.html', 'cloud_pixels_proposal_ui_v3.html') + '?propuesta=' + proposalCode;
+            
+            navigator.clipboard.writeText(proposalUrl).then(() => {
+                alert('¡Enlace copiado al portapapeles!\n\n' + proposalUrl);
+            }).catch(() => {
+                // Fallback para navegadores que no soportan clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = proposalUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                alert('¡Enlace copiado al portapapeles!\n\n' + proposalUrl);
+            });
+        }
+
+        // Event listeners
+        document.getElementById('proposalForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            showLog('🚀 Iniciando proceso de generación de propuesta...', 'info');
+            
+            if (!db) {
+                showLog('❌ Base de datos no inicializada', 'error');
+                showError('Base de datos no inicializada');
+                return;
+            }
+            
+            showLog('✅ Base de datos inicializada correctamente', 'success');
+            
+            try {
+                // Recopilar datos del formulario
+                showLog('📝 Recopilando datos del formulario...', 'info');
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData);
+                
+                // Procesar servicios seleccionados
+                data.servicios_seleccionados = Array.from(document.querySelectorAll('input[name="services"]:checked')).map(cb => cb.value);
+                showLog(`🔧 Servicios seleccionados: ${data.servicios_seleccionados.join(', ')}`, 'info');
+                
+                // Procesar entregables
+                data.entregables = Array.from(document.querySelectorAll('input[name="deliverables[]"]')).map(input => input.value).filter(value => value.trim() !== '');
+                showLog(`📦 Entregables configurados: ${data.entregables.length} items`, 'info');
+                
+                // Mapear campos a la estructura de Supabase
+                showLog('🔄 Mapeando datos a estructura de Supabase...', 'info');
+                const proposalData = {
+                    nombre_proyecto: data.projectName,
+                    cliente_nombre: data.clientName,
+                    cliente_empresa: data.clientCompany,
+                    fecha_propuesta: data.proposalDate,
+                    texto_introductorio: data.introText || 'Soluciones creativas para impulsar tu presencia digital con diseño, desarrollo, branding y estrategias de marketing.',
+                    resumen_ejecutivo: data.executiveSummary,
+                    descripcion_empresa: data.companyDescription || 'Con más de 9 años de experiencia, Cloud Pixels es un equipo global con oficinas en Honduras, Estados Unidos, Estonia y Panamá. Combinamos talento de diseño y desarrollo de todo el mundo para crear soluciones digitales excepcionales y escalables.',
+                    objetivos_alcance: data.objectivesScope,
+                    servicios_seleccionados: data.servicios_seleccionados,
+                    entregables: data.entregables,
+                    proceso_timeline: [
+                        { title: 'Análisis y Planificación', duration: '1-2 semanas', description: 'Reunión inicial, análisis de requerimientos y planificación del proyecto.' },
+                        { title: 'Diseño y Desarrollo', duration: '3-4 semanas', description: 'Creación de diseños, desarrollo frontend y backend según especificaciones.' },
+                        { title: 'Pruebas y Ajustes', duration: '1 semana', description: 'Testing exhaustivo, correcciones y optimizaciones finales.' },
+                        { title: 'Lanzamiento', duration: '1 día', description: 'Despliegue en producción y entrega final del proyecto.' }
+                    ],
+                    valor_proyecto: data.projectValue,
+                    terminos_pago: data.paymentTerms,
+                    contacto_email: data.contactEmail || 'tu.correo@cloudpixels.com',
+                    contacto_whatsapp: data.contactWhatsApp || '+XX XXX XXX XXXX',
+                    horarios_atencion: data.attentionHours || 'Nuestro equipo está disponible de lunes a viernes de 9:00 a.m. a 6:00 p.m. (aplican días feriados). Para consultas fuera de este horario, responderemos al siguiente día laboral.',
+                    terminos_condiciones: data.termsConditions || 'Al aceptar esta propuesta, el cliente se compromete a abonar un anticipo del 50% para iniciar el proyecto. El saldo restante se pagará al finalizar, antes del lanzamiento.',
+                    terminos_validez: data.validityTerms || 'Esta propuesta es válida durante 30 días a partir de la fecha de emisión. Los servicios de mantenimiento, hosting o funcionalidades adicionales no mencionadas aquí se considerarán extras opcionales.',
+                    texto_aceptacion: data.acceptanceText || '¿Listo para comenzar? Haz clic en el botón de abajo para aceptar la propuesta. Podrás firmar digitalmente y realizar el pago inicial.'
+                };
+                
+                showLog('📊 Datos de la propuesta preparados:', 'info');
+                showLog(`   - Proyecto: ${proposalData.nombre_proyecto}`, 'info');
+                showLog(`   - Cliente: ${proposalData.cliente_nombre} (${proposalData.cliente_empresa})`, 'info');
+                showLog(`   - Valor: ${proposalData.valor_proyecto}`, 'info');
+                
+                // Guardar en Supabase
+                showLog('💾 Intentando guardar en base de datos...', 'info');
+                const startTime = Date.now();
+                
+                const savedProposal = await db.saveProposal(proposalData);
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                showLog(`✅ Propuesta guardada exitosamente en ${duration}ms`, 'success');
+                showLog(`🔑 Código de propuesta generado: ${savedProposal.codigo_propuesta}`, 'success');
+                showLog(`🆔 ID de la propuesta: ${savedProposal.id}`, 'success');
+                
+                // Generar enlace directo a la propuesta
+                const proposalUrl = `${window.location.origin}${window.location.pathname.replace('admin-dashboard.html', 'cloud_pixels_proposal_ui_v3.html')}?propuesta=${savedProposal.codigo_propuesta}`;
+                
+                showLog('🔗 Generando enlace de la propuesta...', 'info');
+                showLog(`🌐 URL de la propuesta: ${proposalUrl}`, 'info');
+                
+                // Mostrar mensaje de éxito
+                showSuccess(`¡Propuesta generada exitosamente! Código: ${savedProposal.codigo_propuesta}`);
+                
+                // Redirigir automáticamente a la propuesta después de 3 segundos
+                showLog('🔄 Redirigiendo a la propuesta en 3 segundos...', 'info');
+                startAutoRedirect(proposalUrl, 3);
+                
+                // Mostrar botón para abrir la propuesta inmediatamente
+                showProposalLink(proposalUrl, savedProposal.codigo_propuesta);
+                
+                // Limpiar formulario
+                showLog('🧹 Limpiando formulario...', 'info');
+                this.reset();
+                document.getElementById('deliverablesList').innerHTML = `
+                    <div class="deliverable-item">
+                        <input type="text" name="deliverables[]" placeholder="Entregable 1" required>
+                        <button type="button" class="btn btn-danger btn-small" onclick="removeDeliverable(this)">❌</button>
+                    </div>
+                `;
+                
+                showLog('🎉 Proceso completado exitosamente', 'success');
+                
+                setTimeout(() => {
+                    document.getElementById('successMessage').style.display = 'none';
+                }, 5000);
+                
+            } catch (error) {
+                showLog(`❌ ERROR durante el proceso: ${error.message}`, 'error');
+                showLog(`🔍 Stack trace: ${error.stack}`, 'error');
+                showLog(`📊 Tipo de error: ${error.name}`, 'error');
+                
+                // Información adicional para debugging
+                if (error.code) {
+                    showLog(`🔢 Código de error: ${error.code}`, 'error');
+                }
+                if (error.details) {
+                    showLog(`📋 Detalles: ${error.details}`, 'error');
+                }
+                if (error.hint) {
+                    showLog(`💡 Sugerencia: ${error.hint}`, 'error');
+                }
+                
+                showError(`Error generando la propuesta: ${error.message}`);
+            }
+        });
+
+        // Cerrar modales al hacer clic fuera de ellos
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editModal');
+            const previewModal = document.getElementById('previewModal');
+            
+            if (event.target === editModal) {
+                closeModal();
+            }
+            if (event.target === previewModal) {
+                closePreviewModal();
+            }
+        }
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            showLog('🚀 Sistema de Propuestas Cloud Pixels iniciando...', 'info');
+            showLog('📱 Versión: 3.0 - Panel de Administración', 'info');
+            showLog('🌐 Navegador: ' + navigator.userAgent.split(' ')[0], 'info');
+            showLog('⏰ Fecha: ' + new Date().toLocaleDateString('es-ES'), 'info');
+            
+            initSupabase();
+        });
+    </script>
+</body>
+</html>

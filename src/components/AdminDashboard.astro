@@ -94,16 +94,15 @@ import ProposalsList from './ProposalsList.astro';
 <script>
 // Variables globales
 let isEditMode = false;
-let currentEditId = null;
+let currentEditId: string | null = null;
 let proposalLink = '';
 
 // Funciones de UI
-function showLog(message, type = 'info') {
-    // Función simplificada - solo console.log para debugging
+function showLog(message: string, type = 'info') {
     console.log(`[${type.toUpperCase()}] ${message}`);
 }
 
-function showError(message) {
+function showError(message: string) {
     const errorDiv = document.getElementById('errorMessage');
     if (errorDiv) {
         errorDiv.textContent = `❌ ${message}`;
@@ -115,33 +114,30 @@ function showError(message) {
     showLog(message, 'error');
 }
 
-function showSuccess(message) {
+function showSuccess(message: string) {
     const successDiv = document.getElementById('successMessage');
-    if (successDiv) {
+    const successContent = document.getElementById('successContent');
+    if (successDiv && successContent) {
         successDiv.style.display = 'block';
-        document.getElementById('successContent').textContent = `✅ ${message}`;
+        successContent.textContent = `✅ ${message}`;
     }
     showLog(message, 'success');
 }
 
-function showTab(tabName) {
-    // Ocultar todos los contenidos de pestañas
+function showTab(tabName: string) {
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
     });
     
-    // Quitar clase active de todas las pestañas
     document.querySelectorAll('.tab').forEach(tab => {
         tab.classList.remove('active');
     });
     
-    // Mostrar el contenido seleccionado
     const selectedContent = document.getElementById(`${tabName}-tab`);
     if (selectedContent) {
         selectedContent.classList.add('active');
     }
     
-    // Activar la pestaña seleccionada
     const selectedTab = document.querySelector(`[data-tab="${tabName}"]`);
     if (selectedTab) {
         selectedTab.classList.add('active');
@@ -150,14 +146,11 @@ function showTab(tabName) {
     showLog(`📑 Cambiando a pestaña: ${tabName === 'create' ? 'Crear Propuesta' : 'Lista de Propuestas'}`, 'info');
 }
 
-
-
 function closeModal() {
     const modal = document.getElementById('editModal');
     if (modal) {
         modal.style.display = 'none';
     }
-    // Resetear el modo de edición
     isEditMode = false;
     currentEditId = null;
 }
@@ -170,36 +163,27 @@ function closePreviewModal() {
 }
 
 // Funciones de manejo de formulario
-function setFormMode(mode, proposalData = null) {
+function setFormMode(mode: string, proposalData: any = null) {
     isEditMode = mode === 'edit';
     currentEditId = proposalData?.id || null;
     
     if (mode === 'edit' && proposalData) {
-        // Llenar el formulario con los datos de la propuesta
         fillFormWithData(proposalData);
-        
-        // Cambiar a la pestaña de crear/editar
         showTab('create');
-        
-        // Mostrar botón de cancelar edición
         showCancelEditButton();
-        
-        // Scroll al formulario
         document.getElementById('create-tab')?.scrollIntoView({ behavior: 'smooth' });
-        
         showLog(`✏️ Editando propuesta: ${proposalData.codigo_propuesta}`, 'info');
     } else {
-        // Modo crear - limpiar formulario
-        document.getElementById('proposalForm')?.reset();
+        const form = document.getElementById('proposalForm') as HTMLFormElement;
+        if (form) form.reset();
         hideCancelEditButton();
     }
 }
 
-function fillFormWithData(data) {
+function fillFormWithData(data: any) {
     const form = document.getElementById('proposalForm');
     if (!form) return;
     
-    // Llenar campos simples
     const simpleFields = [
         'nombre_proyecto', 'cliente_nombre', 'cliente_empresa',
         'texto_introductorio', 'resumen_ejecutivo', 'descripcion_empresa',
@@ -209,24 +193,23 @@ function fillFormWithData(data) {
     ];
     
     simpleFields.forEach(field => {
-        const input = form.querySelector(`[name="${field}"]`);
+        const input = form.querySelector(`[name="${field}"]`) as HTMLInputElement;
         if (input && data[field]) {
             input.value = data[field];
         }
     });
     
-    // Manejar servicios seleccionados
     if (data.servicios_seleccionados) {
         const servicios = Array.isArray(data.servicios_seleccionados) 
             ? data.servicios_seleccionados 
             : JSON.parse(data.servicios_seleccionados || '[]');
         
         document.querySelectorAll('input[name="servicios"]').forEach(checkbox => {
-            checkbox.checked = servicios.includes(checkbox.value);
+            const cb = checkbox as HTMLInputElement;
+            cb.checked = servicios.includes(cb.value);
         });
     }
     
-    // Manejar entregables
     if (data.entregables) {
         const entregables = Array.isArray(data.entregables) 
             ? data.entregables 
@@ -235,9 +218,29 @@ function fillFormWithData(data) {
         const entregablesContainer = document.getElementById('entregablesContainer');
         if (entregablesContainer) {
             entregablesContainer.innerHTML = '';
-            entregables.forEach(entregable => {
+            entregables.forEach((entregable: string) => {
                 addDeliverable(entregable);
             });
+        }
+    }
+    
+    if (data.company_logo_url) {
+        const logoUrlInput = document.getElementById('proposalForm-companyLogoUrl') as HTMLInputElement;
+        if (logoUrlInput) {
+            logoUrlInput.value = data.company_logo_url;
+        }
+        
+        const logoPreview = document.getElementById('logo-preview');
+        const logoPreviewImage = document.getElementById('logo-preview-image') as HTMLImageElement;
+        
+        if (logoPreview && logoPreviewImage) {
+            logoPreviewImage.src = data.company_logo_url;
+            logoPreview.style.display = 'block';
+        }
+        
+        const uploaderContainer = document.getElementById('logo-uploader-container');
+        if (uploaderContainer) {
+            uploaderContainer.style.display = 'none';
         }
     }
 }
@@ -246,7 +249,7 @@ function showCancelEditButton() {
     const existingBtn = document.querySelector('[data-action="cancel-edit"]');
     if (!existingBtn) {
         const submitBtn = document.querySelector('button[type="submit"]');
-        if (submitBtn) {
+        if (submitBtn && submitBtn.parentNode) {
             const cancelBtn = document.createElement('button');
             cancelBtn.type = 'button';
             cancelBtn.className = 'btn btn-secondary';
@@ -267,7 +270,12 @@ function hideCancelEditButton() {
 
 function cancelEdit() {
     setFormMode('create');
-    document.getElementById('proposalForm')?.reset();
+    const form = document.getElementById('proposalForm') as HTMLFormElement;
+    if (form) form.reset();
+    
+    // Reinicializar el componente de upload del logo
+    initializeLogoUploader();
+    
     showLog('❌ Edición cancelada', 'info');
 }
 
@@ -284,12 +292,13 @@ function addDeliverable(value = '') {
     container.appendChild(div);
 }
 
-function removeDeliverable(button) {
-    button.closest('.entregable-item').remove();
+function removeDeliverable(button: HTMLElement) {
+    const item = button.closest('.entregable-item');
+    if (item) item.remove();
 }
 
 // Funciones de propuestas
-async function handleCreateProposal(form) {
+async function handleCreateProposal(form: HTMLFormElement) {
     try {
         showLog('📝 Iniciando creación de propuesta...', 'info');
         
@@ -303,7 +312,7 @@ async function handleCreateProposal(form) {
             descripcion_empresa: formData.get('descripcion_empresa'),
             objetivos_alcance: formData.get('objetivos_alcance'),
             servicios_seleccionados: formData.getAll('servicios'),
-            entregables: formData.getAll('entregables[]').filter(e => e.trim() !== ''),
+            entregables: formData.getAll('entregables[]').filter(e => String(e).trim() !== ''),
             valor_proyecto: formData.get('valor_proyecto'),
             terminos_pago: formData.get('terminos_pago'),
             contacto_email: formData.get('contacto_email'),
@@ -323,32 +332,33 @@ async function handleCreateProposal(form) {
             showLog(`✅ Propuesta guardada con código: ${result.codigo_propuesta}`, 'success');
             showSuccess('¡Propuesta generada exitosamente!');
             
-            // Mostrar enlace de la propuesta
             proposalLink = `${window.location.origin}/details?code=${result.codigo_propuesta}`;
-            document.getElementById('proposalCodeDisplay').textContent = result.codigo_propuesta;
-            document.getElementById('openProposalBtn').href = proposalLink;
-            document.getElementById('proposalLinkSection').style.display = 'block';
+            const codeDisplay = document.getElementById('proposalCodeDisplay');
+            const openBtn = document.getElementById('openProposalBtn') as HTMLAnchorElement;
+            const linkSection = document.getElementById('proposalLinkSection');
+            const entregablesContainer = document.getElementById('entregablesContainer');
             
-            // Limpiar formulario
+            if (codeDisplay) codeDisplay.textContent = result.codigo_propuesta;
+            if (openBtn) openBtn.href = proposalLink;
+            if (linkSection) linkSection.style.display = 'block';
+            
             form.reset();
-            document.getElementById('entregablesContainer').innerHTML = '';
-            addDeliverable(); // Agregar un campo vacío
+            if (entregablesContainer) entregablesContainer.innerHTML = '';
+            addDeliverable();
             
-            // Refrescar lista de propuestas si está visible
-            if (window.refreshProposals) {
+            if ((window as any).refreshProposals) {
                 setTimeout(() => {
-                    window.refreshProposals();
+                    (window as any).refreshProposals();
                     showLog('🔄 Lista de propuestas actualizada', 'info');
                 }, 1000);
             }
             
-            // Countdown y redirección
             let countdown = 3;
             const countdownElement = document.querySelector('.countdown');
             const countdownInterval = setInterval(() => {
                 countdown--;
                 if (countdownElement) {
-                    countdownElement.textContent = countdown;
+                    countdownElement.textContent = String(countdown);
                 }
                 if (countdown <= 0) {
                     clearInterval(countdownInterval);
@@ -356,13 +366,13 @@ async function handleCreateProposal(form) {
                 }
             }, 1000);
         }
-    } catch (error) {
+    } catch (error: any) {
         showLog(`❌ Error: ${error.message}`, 'error');
         showError('Error al generar la propuesta. Por favor, verifica los datos e intenta nuevamente.');
     }
 }
 
-async function handleUpdateProposal(form) {
+async function handleUpdateProposal(form: HTMLFormElement) {
     try {
         if (!currentEditId) {
             showError('No se ha seleccionado una propuesta para editar');
@@ -381,7 +391,7 @@ async function handleUpdateProposal(form) {
             descripcion_empresa: formData.get('descripcion_empresa'),
             objetivos_alcance: formData.get('objetivos_alcance'),
             servicios_seleccionados: formData.getAll('servicios'),
-            entregables: formData.getAll('entregables[]').filter(e => e.trim() !== ''),
+            entregables: formData.getAll('entregables[]').filter(e => String(e).trim() !== ''),
             valor_proyecto: formData.get('valor_proyecto'),
             terminos_pago: formData.get('terminos_pago'),
             contacto_email: formData.get('contacto_email'),
@@ -398,24 +408,22 @@ async function handleUpdateProposal(form) {
             showLog(`✅ Propuesta actualizada: ${result.codigo_propuesta}`, 'success');
             showSuccess('¡Propuesta actualizada exitosamente!');
             
-            // Resetear modo edición
             setFormMode('create');
             
-            // Refrescar lista de propuestas si está visible
-            if (window.refreshProposals) {
+            if ((window as any).refreshProposals) {
                 setTimeout(() => {
-                    window.refreshProposals();
+                    (window as any).refreshProposals();
                     showLog('🔄 Lista de propuestas actualizada', 'info');
                 }, 1000);
             }
         }
-    } catch (error) {
+    } catch (error: any) {
         showLog(`❌ Error: ${error.message}`, 'error');
         showError('Error al actualizar la propuesta.');
     }
 }
 
-async function editProposal(proposalId) {
+async function editProposal(proposalId: string) {
     try {
         showLog('🔍 Cargando propuesta para editar...', 'info');
         
@@ -427,13 +435,13 @@ async function editProposal(proposalId) {
         
         setFormMode('edit', proposal);
         showLog('✅ Propuesta cargada para edición', 'success');
-    } catch (error) {
+    } catch (error: any) {
         showLog(`❌ Error: ${error.message}`, 'error');
         showError('Error cargando la propuesta para editar');
     }
 }
 
-async function previewProposal(proposalId) {
+async function previewProposal(proposalId: string) {
     try {
         const proposal = await window.PropuestasService.getProposalById(proposalId);
         if (!proposal) return;
@@ -477,51 +485,53 @@ async function previewProposal(proposalId) {
             </div>
         `;
         
-        document.getElementById('previewContent').innerHTML = previewContent;
-        document.getElementById('previewModal').style.display = 'block';
-    } catch (error) {
+        const previewContentEl = document.getElementById('previewContent');
+        const previewModal = document.getElementById('previewModal');
+        
+        if (previewContentEl) previewContentEl.innerHTML = previewContent;
+        if (previewModal) previewModal.style.display = 'block';
+    } catch (error: any) {
         console.error('Error cargando propuesta:', error);
         showError('Error cargando la propuesta');
     }
 }
 
-async function deleteProposal(proposalId) {
+async function deleteProposal(proposalId: string) {
     if (confirm('¿Estás seguro de que quieres eliminar esta propuesta? Esta acción no se puede deshacer.')) {
         try {
-                    await window.PropuestasService.deleteProposal(proposalId);
-        showLog('✅ Propuesta eliminada exitosamente', 'success');
-        showSuccess('Propuesta eliminada exitosamente');
-        
-        // Refrescar lista de propuestas si está visible
-        if (window.refreshProposals) {
-            setTimeout(() => {
-                window.refreshProposals();
-                showLog('🔄 Lista de propuestas actualizada', 'info');
-            }, 1000);
-        }
-        } catch (error) {
+            await window.PropuestasService.deleteProposal(proposalId);
+            showLog('✅ Propuesta eliminada exitosamente', 'success');
+            showSuccess('Propuesta eliminada exitosamente');
+            
+            if ((window as any).refreshProposals) {
+                setTimeout(() => {
+                    (window as any).refreshProposals();
+                    showLog('🔄 Lista de propuestas actualizada', 'info');
+                }, 1000);
+            }
+        } catch (error: any) {
             console.error('Error eliminando propuesta:', error);
             showError('Error eliminando la propuesta');
         }
     }
 }
 
-    function openProposal(proposalCode) {
-        if (!proposalCode) {
-            alert('Esta propuesta no tiene un código válido');
-            return;
-        }
-
-        const proposalUrl = `${window.location.origin}/details?code=${proposalCode}`;
-        window.open(proposalUrl, '_blank');
-        showLog(`🚀 Propuesta abierta en nueva pestaña: ${proposalCode}`, 'success');
+function openProposal(proposalCode: string) {
+    if (!proposalCode) {
+        alert('Esta propuesta no tiene un código válido');
+        return;
     }
+
+    const proposalUrl = `${window.location.origin}/details?code=${proposalCode}`;
+    window.open(proposalUrl, '_blank');
+    showLog(`🚀 Propuesta abierta en nueva pestaña: ${proposalCode}`, 'success');
+}
 
 function copyProposalLink() {
     if (!proposalLink) return;
     
     navigator.clipboard.writeText(proposalLink).then(() => {
-        alert('¡Enlace copiado al portapapeles!\\n\\n' + proposalLink);
+        alert('¡Enlace copiado al portapapeles!\n\n' + proposalLink);
     }).catch(() => {
         const textArea = document.createElement('textarea');
         textArea.value = proposalLink;
@@ -529,20 +539,20 @@ function copyProposalLink() {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        alert('¡Enlace copiado al portapapeles!\\n\\n' + proposalLink);
+        alert('¡Enlace copiado al portapapeles!\n\n' + proposalLink);
     });
 }
 
-    function copyProposalLinkFromCode(proposalCode) {
-        if (!proposalCode) {
-            alert('Esta propuesta no tiene un código válido');
-            return;
-        }
+function copyProposalLinkFromCode(proposalCode: string) {
+    if (!proposalCode) {
+        alert('Esta propuesta no tiene un código válido');
+        return;
+    }
 
-        const proposalUrl = `${window.location.origin}/details?code=${proposalCode}`;
+    const proposalUrl = `${window.location.origin}/details?code=${proposalCode}`;
     
     navigator.clipboard.writeText(proposalUrl).then(() => {
-        alert('¡Enlace copiado al portapapeles!\\n\\n' + proposalUrl);
+        alert('¡Enlace copiado al portapapeles!\n\n' + proposalUrl);
     }).catch(() => {
         const textArea = document.createElement('textarea');
         textArea.value = proposalUrl;
@@ -550,22 +560,20 @@ function copyProposalLink() {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        alert('¡Enlace copiado al portapapeles!\\n\\n' + proposalUrl);
+        alert('¡Enlace copiado al portapapeles!\n\n' + proposalUrl);
     });
 }
 
 // Event delegation para manejar todos los clicks
-function handleGlobalClick(event) {
-    const target = event.target;
+function handleGlobalClick(event: Event) {
+    const target = event.target as HTMLElement;
     
-    // Manejar tabs
     if (target.hasAttribute('data-tab')) {
         const tabName = target.getAttribute('data-tab');
-        showTab(tabName);
+        if (tabName) showTab(tabName);
         return;
     }
     
-    // Manejar acciones de botones
     if (target.hasAttribute('data-action')) {
         const action = target.getAttribute('data-action');
         
@@ -582,7 +590,6 @@ function handleGlobalClick(event) {
             case 'cancel-edit':
                 cancelEdit();
                 break;
-
             case 'close-modal':
                 closeModal();
                 break;
@@ -591,23 +598,23 @@ function handleGlobalClick(event) {
                 break;
             case 'open-proposal':
                 const code = target.getAttribute('data-code');
-                openProposal(code);
+                if (code) openProposal(code);
                 break;
             case 'preview-proposal':
                 const previewId = target.getAttribute('data-id');
-                previewProposal(previewId);
+                if (previewId) previewProposal(previewId);
                 break;
             case 'edit-proposal':
                 const editId = target.getAttribute('data-id');
-                editProposal(editId);
+                if (editId) editProposal(editId);
                 break;
             case 'copy-proposal-link-code':
                 const copyCode = target.getAttribute('data-code');
-                copyProposalLinkFromCode(copyCode);
+                if (copyCode) copyProposalLinkFromCode(copyCode);
                 break;
             case 'delete-proposal':
                 const deleteId = target.getAttribute('data-id');
-                deleteProposal(deleteId);
+                if (deleteId) deleteProposal(deleteId);
                 break;
         }
     }
@@ -615,21 +622,21 @@ function handleGlobalClick(event) {
 
 // Inicialización cuando el DOM está listo
 document.addEventListener('DOMContentLoaded', function() {
-    // Verificar si el formulario existe antes de agregar el event listener
     const proposalForm = document.getElementById('proposalForm');
-    if (proposalForm) {
-        proposalForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
+            if (proposalForm) {
+            proposalForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (isEditMode) {
+                    await handleUpdateProposal(this as HTMLFormElement);
+                } else {
+                    await handleCreateProposal(this as HTMLFormElement);
+                }
+            });
             
-            if (isEditMode) {
-                await handleUpdateProposal(this);
-            } else {
-                await handleCreateProposal(this);
-            }
-        });
-    }
+            initializeLogoUploader();
+        }
 
-    // Cerrar modales al hacer clic fuera de ellos
     window.onclick = function(event) {
         const editModal = document.getElementById('editModal');
         const previewModal = document.getElementById('previewModal');
@@ -642,16 +649,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Agregar event listener global para manejar todos los clicks
     document.addEventListener('click', handleGlobalClick);
 
-    // Inicializar la aplicación
     showLog('🚀 Sistema de Propuestas Cloud Pixels iniciando...', 'info');
     showLog('📱 Versión: 3.0 - Panel de Administración', 'info');
     showLog('🌐 Navegador: ' + navigator.userAgent.split(' ')[0], 'info');
     showLog('⏰ Fecha: ' + new Date().toLocaleDateString('es-ES'), 'info');
     
-    // Verificar conexión con Supabase
     if (window.PropuestasService) {
         showLog('✅ Servicio de propuestas disponible', 'success');
         showLog('🔌 Conectado a Supabase', 'success');
@@ -659,11 +663,657 @@ document.addEventListener('DOMContentLoaded', function() {
         showLog('❌ Error: Servicio de propuestas no disponible', 'error');
     }
 
-    // Hacer funciones disponibles globalmente para compatibilidad
-    window.editProposal = editProposal;
-    window.previewProposal = previewProposal;
-    window.deleteProposal = deleteProposal;
-    window.openProposal = openProposal;
-    window.copyProposalLinkFromCode = copyProposalLinkFromCode;
+    (window as any).editProposal = editProposal;
+    (window as any).previewProposal = previewProposal;
+    (window as any).deleteProposal = deleteProposal;
+    (window as any).openProposal = openProposal;
+    (window as any).copyProposalLinkFromCode = copyProposalLinkFromCode;
+    (window as any).handleLogoUploadSuccess = handleLogoUploadSuccess;
+    (window as any).handleLogoUploadError = handleLogoUploadError;
 });
+
+// Estilos para el componente de subida de logos
+const logoUploaderStyles = `
+<style>
+    .image-uploader {
+        max-width: 100%;
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .upload-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .upload-header h3 {
+        margin: 0 0 0.5rem 0;
+        color: #1f2937;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .upload-description {
+        margin: 0 0 0.5rem 0;
+        color: #6b7280;
+        font-size: 0.75rem;
+    }
+
+    .upload-requirements {
+        margin: 0;
+        color: #9ca3af;
+        font-size: 0.7rem;
+    }
+    
+
+
+    .upload-area {
+        border: 2px dashed #d1d5db;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #f9fafb;
+        position: relative;
+    }
+
+    .upload-area:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+    }
+    
+
+
+    .upload-area.dragover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        transform: scale(1.02);
+    }
+
+    .upload-icon {
+        color: #9ca3af;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-text {
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .upload-subtext {
+        margin: 0;
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+    
+
+
+    .file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 1;
+        pointer-events: none; /* Evita que el input capture eventos */
+    }
+
+    .upload-progress {
+        margin: 1rem 0;
+        text-align: center;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: #3b82f6;
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+
+    .progress-text {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .upload-preview {
+        margin: 1rem 0;
+        text-align: center;
+    }
+
+    .preview-container {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+    .preview-container img {
+        max-width: 150px;
+        max-height: 100px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .remove-image {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 24px;
+        height: 24px;
+        border: none;
+        border-radius: 50%;
+        background: #ef4444;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease;
+    }
+
+    .remove-image:hover {
+        background: #dc2626;
+    }
+
+    .preview-info {
+        text-align: center;
+    }
+
+    .file-name {
+        margin: 0 0 0.25rem 0;
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .file-size {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .upload-actions {
+        text-align: center;
+        margin: 1rem 0;
+    }
+
+    .upload-btn {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .upload-btn:hover:not(:disabled) {
+        background: #2563eb;
+        transform: translateY(-1px);
+    }
+
+    .upload-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .upload-message {
+        margin: 1rem 0;
+        padding: 0.75rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .upload-message.success {
+        background: #d1fae5;
+        border: 1px solid #a7f3d0;
+    }
+
+    .upload-message.error {
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+    }
+
+    .message-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .message-icon {
+        font-size: 1.25rem;
+    }
+
+    .message-text {
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .success .message-icon {
+        color: #059669;
+    }
+
+    .success .message-text {
+        color: #065f46;
+    }
+
+    .error .message-icon {
+        color: #dc2626;
+    }
+
+    .error .message-text {
+        color: #991b1b;
+    }
+</style>
+`;
+
+// Insertar los estilos en el head del documento
+document.head.insertAdjacentHTML('beforeend', logoUploaderStyles);
+
+// Funciones para el manejo de logos
+function initializeLogoUploader() {
+    const container = document.getElementById('logo-uploader-container');
+    if (!container) return;
+    
+    // Crear el HTML del componente de subida de logos
+    container.innerHTML = `
+        <div class="image-uploader" data-folder="logo-propuestas">
+            <div class="upload-header">
+                <h3>Subir Logo</h3>
+                <p class="upload-description">Arrastra y suelta tu imagen aquí o haz clic para seleccionar</p>
+                <p class="upload-requirements">
+                    Formatos: JPG, PNG, GIF, WebP • Máximo: 5MB
+                </p>
+
+            </div>
+
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </div>
+                <p class="upload-text">Arrastra tu imagen aquí</p>
+                <p class="upload-subtext">o haz clic para seleccionar</p>
+                
+                <input 
+                    type="file" 
+                    id="file-input" 
+                    accept="image/*" 
+                    class="file-input"
+                    data-max-size="5242880"
+                />
+            </div>
+
+            <div class="upload-progress" id="upload-progress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <p class="progress-text">Subiendo imagen...</p>
+            </div>
+
+            <div class="upload-preview" id="upload-preview" style="display: none;">
+                <div class="preview-container">
+                    <img id="preview-image" alt="Vista previa" />
+                    <button class="remove-image" id="remove-image" type="button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="preview-info">
+                    <p class="file-name" id="file-name"></p>
+                    <p class="file-size" id="file-size"></p>
+                </div>
+            </div>
+
+            <div class="upload-actions">
+                <button 
+                    type="button" 
+                    class="upload-btn" 
+                    id="upload-btn" 
+                    disabled
+                >
+                    Subir Imagen
+                </button>
+            </div>
+
+            <div class="upload-message" id="upload-message" style="display: none;">
+                <div class="message-content">
+                    <span class="message-icon" id="message-icon"></span>
+                    <span class="message-text" id="message-text"></span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Inicializar la funcionalidad del componente
+    initializeLogoUploaderFunctionality();
+}
+
+function initializeLogoUploaderFunctionality() {
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const progressBar = document.getElementById('upload-progress');
+    const progressFill = document.getElementById('progress-fill');
+    const previewContainer = document.getElementById('upload-preview');
+    const previewImage = document.getElementById('preview-image');
+    const messageContainer = document.getElementById('upload-message');
+    const removeBtn = document.getElementById('remove-image');
+    
+    let selectedFile: File | null = null;
+    
+    if (!uploadArea || !fileInput || !uploadBtn) {
+        console.warn('Elementos del uploader no encontrados:', { uploadArea: !!uploadArea, fileInput: !!fileInput, uploadBtn: !!uploadBtn });
+        return;
+    }
+    
+    // Log de depuración
+    console.log('✅ Uploader inicializado correctamente');
+    console.log('📁 Input file:', fileInput);
+    console.log('🎯 Área de upload:', uploadArea);
+    
+    // Click en el área de upload - Mejorado para evitar conflictos
+    uploadArea.addEventListener('click', (e) => {
+        // Solo procesar clicks directos en el área, no en elementos hijos
+        const target = e.target as HTMLElement;
+        if (target === uploadArea || target.closest('.upload-icon') || target.closest('.upload-text') || target.closest('.upload-subtext')) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Asegurar que el input file esté disponible y funcione
+            if (fileInput && fileInput.click) {
+                fileInput.click();
+            } else {
+                console.warn('Input file no disponible');
+            }
+        }
+    });
+    
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadArea.classList.add('dragover');
+    });
+    
+
+    
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer?.files;
+        if (files && files.length > 0) {
+            processFile(files[0]);
+        }
+    });
+    
+    // Selección de archivo
+    fileInput.addEventListener('change', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const target = e.target as HTMLInputElement;
+        if (target.files && target.files.length > 0) {
+            processFile(target.files[0]);
+        }
+    });
+    
+    // Respaldo adicional: asegurar que el input file sea clickeable
+    fileInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+    
+    // Botón de upload
+    uploadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleUpload();
+    });
+    
+    // Botón de eliminar preview
+    if (removeBtn) {
+        removeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            removePreview();
+        });
+    }
+    
+    // Botón de eliminar logo (en la vista previa)
+    const removeLogoBtn = document.getElementById('remove-logo-btn');
+    if (removeLogoBtn) {
+        removeLogoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            removeLogo();
+        });
+    }
+    
+
+    
+    function processFile(file: File) {
+        // Validar el archivo
+        if (!isValidImage(file)) {
+            showMessage('El archivo seleccionado no es válido. Debe ser una imagen de máximo 5MB.', 'error');
+            return;
+        }
+        
+        selectedFile = file;
+        showPreview(file);
+        if (uploadBtn) (uploadBtn as HTMLButtonElement).disabled = false;
+    }
+    
+    function showPreview(file: File) {
+        if (!previewImage || !previewContainer) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (previewImage) (previewImage as HTMLImageElement).src = e.target?.result as string;
+            if (previewContainer) previewContainer.style.display = 'block';
+            
+            // Mostrar información del archivo
+            const fileNameEl = document.getElementById('file-name');
+            const fileSizeEl = document.getElementById('file-size');
+            
+            if (fileNameEl) fileNameEl.textContent = file.name;
+            if (fileSizeEl) fileSizeEl.textContent = formatFileSize(file.size);
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    function removePreview() {
+        selectedFile = null;
+        if (previewContainer) previewContainer.style.display = 'none';
+        if (uploadBtn) (uploadBtn as HTMLButtonElement).disabled = true;
+        if (fileInput) (fileInput as HTMLInputElement).value = '';
+    }
+    
+    function removeLogo() {
+        // Limpiar el campo oculto
+        const logoUrlInput = document.getElementById('proposalForm-companyLogoUrl') as HTMLInputElement;
+        if (logoUrlInput) {
+            logoUrlInput.value = '';
+        }
+        
+        // Ocultar la vista previa del logo
+        const logoPreview = document.getElementById('logo-preview');
+        if (logoPreview) {
+            logoPreview.style.display = 'none';
+        }
+        
+        // Mostrar el componente de upload
+        const uploaderContainer = document.getElementById('logo-uploader-container');
+        if (uploaderContainer) {
+            uploaderContainer.style.display = 'block';
+        }
+    }
+    
+    async function handleUpload() {
+        if (!selectedFile) return;
+        
+        try {
+            showProgress();
+            if (uploadBtn) (uploadBtn as HTMLButtonElement).disabled = true;
+            
+            // Simular progreso
+            simulateProgress();
+            
+            // Subir la imagen usando el servicio de almacenamiento
+            const result = await uploadLogoToSupabase(selectedFile);
+            
+            if (result.success) {
+                showMessage('✅ Logo subido exitosamente!', 'success');
+                
+                // Llamar a la función de éxito
+                handleLogoUploadSuccess(result.url, result.path);
+                
+                // Limpiar después de un delay
+                setTimeout(() => {
+                    removePreview();
+                    hideMessage();
+                }, 3000);
+            } else {
+                throw new Error(result.error);
+            }
+            
+        } catch (error: any) {
+            const errorMessage = error.message || 'Error desconocido';
+            showMessage(`❌ Error: ${errorMessage}`, 'error');
+            handleLogoUploadError(errorMessage);
+        } finally {
+            hideProgress();
+            if (uploadBtn) (uploadBtn as HTMLButtonElement).disabled = false;
+        }
+    }
+    
+    function showProgress() {
+        if (progressBar) progressBar.style.display = 'block';
+    }
+    
+    function hideProgress() {
+        if (progressBar) progressBar.style.display = 'none';
+        if (progressFill) progressFill.style.width = '0%';
+    }
+    
+    function simulateProgress() {
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 90) {
+                progress = 90;
+                clearInterval(interval);
+            }
+            if (progressFill) progressFill.style.width = `${progress}%`;
+        }, 200);
+    }
+    
+    function showMessage(text: string, type: string) {
+        if (!messageContainer) return;
+        
+        const messageIcon = document.getElementById('message-icon');
+        const messageText = document.getElementById('message-text');
+        
+        if (messageIcon) messageIcon.textContent = type === 'success' ? '✅' : '❌';
+        if (messageText) messageText.textContent = text;
+        
+        messageContainer.className = `upload-message ${type}`;
+        messageContainer.style.display = 'block';
+    }
+    
+    function hideMessage() {
+        if (messageContainer) messageContainer.style.display = 'none';
+    }
+    
+    function formatFileSize(bytes: number) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    function isValidImage(file: File) {
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        
+        return validTypes.includes(file.type) && file.size <= maxSize;
+    }
+}
+
+async function uploadLogoToSupabase(file: File) {
+    try {
+        // Importar dinámicamente el servicio de almacenamiento
+        const { StorageService } = await import('../lib/storage-service');
+        
+        // Subir la imagen - usar 'logo-propuestas' como carpeta raíz
+        const result = await StorageService.uploadImage(file, undefined, 'logo-propuestas');
+        return result;
+    } catch (error: any) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Error al subir la imagen'
+        };
+    }
+}
+
+function handleLogoUploadSuccess(url: string, path: string) {
+    console.log('✅ Logo subido exitosamente:', { url, path });
+    
+    // Guardar la URL del logo en el campo oculto
+    const logoUrlInput = document.getElementById('proposalForm-companyLogoUrl') as HTMLInputElement;
+    if (logoUrlInput) {
+        logoUrlInput.value = url;
+    }
+    
+    // Mostrar la vista previa del logo
+    const logoPreview = document.getElementById('logo-preview');
+    const logoPreviewImage = document.getElementById('logo-preview-image') as HTMLImageElement;
+    
+    if (logoPreview && logoPreviewImage) {
+        logoPreviewImage.src = url;
+        logoPreview.style.display = 'block';
+    }
+    
+    // Ocultar el componente de upload
+    const uploaderContainer = document.getElementById('logo-uploader-container');
+    if (uploaderContainer) {
+        uploaderContainer.style.display = 'none';
+    }
+}
+
+function handleLogoUploadError(error: string) {
+    console.error('❌ Error al subir logo:', error);
+    
+    // Aquí puedes manejar el error como prefieras
+    // Por ejemplo, mostrar una notificación, registrar el error, etc.
+}
 </script>

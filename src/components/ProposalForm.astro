@@ -36,6 +36,20 @@ const { mode, proposalData, formId } = Astro.props;
                        value={proposalData?.cliente_empresa || ''}>
             </div>
         </div>
+        
+        <!-- Logo de la Empresa -->
+        <div class="form-section logo-upload-section">
+            <h4>🏢 Logo de la Empresa</h4>
+            <p class="logo-description">Sube el logo oficial de la empresa para personalizar la propuesta</p>
+            <div id="logo-uploader-container">
+                <!-- El componente ImageUploader se renderizará aquí -->
+            </div>
+            <input type="hidden" id={`${formId}-companyLogoUrl`} name="company_logo_url" value={proposalData?.company_logo_url || ''}>
+            <div id="logo-preview" class="logo-preview" style="display: none;">
+                <img id="logo-preview-image" alt="Logo de la empresa" />
+                <button type="button" class="btn btn-small btn-danger" id="remove-logo-btn">🗑️ Eliminar Logo</button>
+            </div>
+        </div>
     </div>
 
     <!-- Resumen Ejecutivo -->
@@ -199,3 +213,89 @@ const { mode, proposalData, formId } = Astro.props;
         <button type="submit" class="btn btn-primary">💾 Actualizar Propuesta</button>
     )}
 </form>
+
+<style>
+    .logo-upload-section {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #F27E2A;
+    }
+
+    .logo-upload-section h4 {
+        margin: 0 0 0.5rem 0;
+        color: #08002B;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .logo-description {
+        margin: 0 0 1rem 0;
+        color: #6b7280;
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+
+    .logo-preview {
+        margin-top: 1rem;
+        text-align: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .logo-preview img {
+        max-width: 150px;
+        max-height: 100px;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #remove-logo-btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    /* Estilos para el componente ImageUploader integrado */
+    .logo-uploader-container {
+        margin-bottom: 1rem;
+    }
+
+    .logo-uploader-container .image-uploader {
+        max-width: 100%;
+        margin: 0;
+    }
+
+    .logo-uploader-container .upload-header h3 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .logo-uploader-container .upload-description {
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .logo-uploader-container .upload-requirements {
+        font-size: 0.7rem;
+    }
+
+    .logo-uploader-container .upload-area {
+        padding: 1.5rem;
+    }
+
+    .logo-uploader-container .upload-icon {
+        margin-bottom: 0.5rem;
+    }
+
+    .logo-uploader-container .upload-text {
+        font-size: 1rem;
+    }
+
+    .logo-uploader-container .upload-subtext {
+        font-size: 0.8rem;
+    }
+</style>

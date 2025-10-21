@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo de Uso - Sistema de Propuestas Cloud Pixels</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .example {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .code {
+            background: #333;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+        }
+        .button {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Ejemplo de Uso - Sistema de Propuestas Dinámicas</h1>
+    
+    <div class="highlight">
+        <strong>💡 Este archivo muestra cómo usar el sistema de propuestas dinámicas de Cloud Pixels</strong>
+    </div>
+
+    <h2>📋 Paso 1: Crear una Propuesta</h2>
+    <div class="example">
+        <p>1. Abre el <a href="admin-dashboard.html" class="button">Panel de Administración</a></p>
+        <p>2. Ve a la pestaña "Crear Nueva Propuesta"</p>
+        <p>3. Llena el formulario con la información del cliente</p>
+        <p>4. Haz clic en "Generar Propuesta HTML"</p>
+        <p>5. La propuesta se guardará automáticamente con un código único</p>
+    </div>
+
+    <h2>🔗 Paso 2: Compartir la Propuesta</h2>
+    <div class="example">
+        <p>1. Ve a la pestaña "Lista de Propuestas"</p>
+        <p>2. Encuentra tu propuesta en la lista</p>
+        <p>3. Haz clic en "🔗 Copiar Enlace"</p>
+        <p>4. El enlace se copiará al portapapeles</p>
+        <p>5. Comparte este enlace con tu cliente</p>
+    </div>
+
+    <h2>📄 Paso 3: El Cliente Ve la Propuesta</h2>
+    <div class="example">
+        <p>Cuando el cliente abra el enlace, verá:</p>
+        <ul>
+            <li>✅ Propuesta personalizada con su información</li>
+            <li>✅ Servicios específicos seleccionados</li>
+            <li>✅ Entregables personalizados</li>
+            <li>✅ Precio y condiciones de pago</li>
+            <li>✅ Información de contacto actualizada</li>
+        </ul>
+    </div>
+
+    <h2>🎯 Ejemplo de Enlace de Propuesta</h2>
+    <div class="code">
+        http://localhost:8000/cloud_pixels_proposal_ui_v3.html?propuesta=CP-20241201-1234
+    </div>
+
+    <h2>📊 Estructura de Datos de Ejemplo</h2>
+    <div class="code">
+{
+  "id": "1701234567890",
+  "proposalCode": "CP-20241201-1234",
+  "projectName": "Website Corporativo Empresa ABC",
+  "clientName": "Juan Pérez",
+  "clientCompany": "Empresa ABC S.A.",
+  "proposalDate": "2024-12-01",
+  "executiveSummary": "Desarrollo de un sitio web corporativo moderno y responsive...",
+  "objectivesScope": "Mejorar la presencia digital de la empresa...",
+  "services": ["Website Design", "Logo & Branding"],
+  "deliverables": [
+    "Diseño UI/UX completo",
+    "Desarrollo del sitio web",
+    "Manual de marca"
+  ],
+  "projectValue": "$5,000",
+  "paymentTerms": "Pago inicial 50%\nSaldo al finalizar",
+  "contactEmail": "contacto@cloudpixels.com",
+  "contactWhatsApp": "+504 9999-9999",
+  "createdAt": "2024-12-01T10:00:00.000Z"
+}
+    </div>
+
+    <h2>🔧 Funcionalidades del Sistema</h2>
+    <div class="example">
+        <h3>✅ Lo que SÍ hace el sistema:</h3>
+        <ul>
+            <li>Genera códigos únicos automáticamente</li>
+            <li>Guarda propuestas en base de datos local</li>
+            <li>Carga propuestas dinámicamente desde la URL</li>
+            <li>Permite editar propuestas existentes</li>
+            <li>Genera enlaces compartibles</li>
+            <li>Descarga archivos HTML estáticos</li>
+        </ul>
+
+        <h3>❌ Lo que NO hace el sistema:</h3>
+        <ul>
+            <li>No requiere servidor web (solo para desarrollo)</li>
+            <li>No envía datos a servidores externos</li>
+            <li>No requiere base de datos compleja</li>
+            <li>No necesita configuración de servidor</li>
+        </ul>
+    </div>
+
+    <h2>🚀 Prueba el Sistema</h2>
+    <div class="example">
+        <p><strong>Para probar el sistema completo:</strong></p>
+        <a href="admin-dashboard.html" class="button">📊 Ir al Panel de Administración</a>
+        <a href="cloud_pixels_proposal_ui_v3.html" class="button">📄 Ver Template de Propuesta</a>
+    </div>
+
+    <div class="highlight">
+        <strong>💡 Consejo:</strong> Asegúrate de tener un servidor local corriendo (python -m http.server 8000) para que todas las funcionalidades trabajen correctamente.
+    </div>
+
+    <footer style="margin-top: 50px; text-align: center; color: #666;">
+        <p>Desarrollado para Cloud Pixels 🎨</p>
+        <p>Sistema de propuestas dinámicas y profesionales</p>
+    </footer>
+</body>
+</html>

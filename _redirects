@@ -1,0 +1,19 @@
+# Redirecciones para URLs más limpias - Cloud Pixels Proposals
+# Este archivo debe subirse al bucket de Supabase Storage
+
+# Redirección principal
+/                    /index.html
+
+# Panel de administración
+/admin               /admin-dashboard.html
+
+# Propuestas dinámicas
+/proposal/:code      /cloud_pixels_proposal_ui_v3.html?propuesta=:code
+
+# Rutas adicionales para SEO
+/dashboard           /admin-dashboard.html
+/proposals           /admin-dashboard.html
+/create              /admin-dashboard.html
+
+# Manejo de errores 404
+/*                   /index.html

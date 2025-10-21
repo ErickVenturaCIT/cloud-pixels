@@ -1,0 +1,565 @@
+---
+// Componente para subir imágenes al bucket de Supabase
+export interface Props {
+  title?: string;
+  description?: string;
+  acceptedTypes?: string;
+  maxSize?: number;
+  folder?: string;
+  onUploadSuccess?: string; // Nombre de la función JavaScript a llamar
+  onUploadError?: string;   // Nombre de la función JavaScript a llamar
+}
+
+const {
+  title = "Subir Logo",
+  description = "Arrastra y suelta tu imagen aquí o haz clic para seleccionar",
+  acceptedTypes = "image/*",
+  maxSize = 5,
+  folder = "logos-propuestas",
+  onUploadSuccess = "onUploadSuccess",
+  onUploadError = "onUploadError"
+} = Astro.props;
+---
+
+<div class="image-uploader" data-folder={folder}>
+  <div class="upload-header">
+    <h3>{title}</h3>
+    <p class="upload-description">{description}</p>
+    <p class="upload-requirements">
+      Formatos: JPG, PNG, GIF, WebP • Máximo: {maxSize}MB
+    </p>
+  </div>
+
+  <div class="upload-area" id="upload-area">
+    <div class="upload-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7,10 12,15 17,10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </div>
+    <p class="upload-text">Arrastra tu imagen aquí</p>
+    <p class="upload-subtext">o haz clic para seleccionar</p>
+    <input 
+      type="file" 
+      id="file-input" 
+      accept={acceptedTypes} 
+      class="file-input"
+      data-max-size={maxSize * 1024 * 1024}
+    />
+  </div>
+
+  <div class="upload-progress" id="upload-progress" style="display: none;">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <p class="progress-text">Subiendo imagen...</p>
+  </div>
+
+  <div class="upload-preview" id="upload-preview" style="display: none;">
+    <div class="preview-container">
+      <img id="preview-image" alt="Vista previa" />
+      <button class="remove-image" id="remove-image" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="preview-info">
+      <p class="file-name" id="file-name"></p>
+      <p class="file-size" id="file-size"></p>
+    </div>
+  </div>
+
+  <div class="upload-actions">
+    <button 
+      type="button" 
+      class="upload-btn" 
+      id="upload-btn" 
+      disabled
+    >
+      Subir Imagen
+    </button>
+  </div>
+
+  <div class="upload-message" id="upload-message" style="display: none;">
+    <div class="message-content">
+      <span class="message-icon" id="message-icon"></span>
+      <span class="message-text" id="message-text"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .image-uploader {
+    max-width: 500px;
+    margin: 0 auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .upload-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .upload-header h3 {
+    margin: 0 0 0.5rem 0;
+    color: #1f2937;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .upload-description {
+    margin: 0 0 0.5rem 0;
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+
+  .upload-requirements {
+    margin: 0;
+    color: #9ca3af;
+    font-size: 0.75rem;
+  }
+
+  .upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f9fafb;
+    position: relative;
+  }
+
+  .upload-area:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+  }
+
+  .upload-area.dragover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    transform: scale(1.02);
+  }
+
+  .upload-icon {
+    color: #9ca3af;
+    margin-bottom: 1rem;
+  }
+
+  .upload-text {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .upload-subtext {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .upload-progress {
+    margin: 1rem 0;
+    text-align: center;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: #3b82f6;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .progress-text {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .upload-preview {
+    margin: 1rem 0;
+    text-align: center;
+  }
+
+  .preview-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+
+  .preview-container img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .remove-image {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: #ef4444;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+  }
+
+  .remove-image:hover {
+    background: #dc2626;
+  }
+
+  .preview-info {
+    text-align: center;
+  }
+
+  .file-name {
+    margin: 0 0 0.25rem 0;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .file-size {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .upload-actions {
+    text-align: center;
+    margin: 1rem 0;
+  }
+
+  .upload-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .upload-btn:hover:not(:disabled) {
+    background: #2563eb;
+    transform: translateY(-1px);
+  }
+
+  .upload-btn:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .upload-message {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .upload-message.success {
+    background: #d1fae5;
+    border: 1px solid #a7f3d0;
+  }
+
+  .upload-message.error {
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+  }
+
+  .message-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .message-icon {
+    font-size: 1.25rem;
+  }
+
+  .message-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .success .message-icon {
+    color: #059669;
+  }
+
+  .success .message-text {
+    color: #065f46;
+  }
+
+  .error .message-icon {
+    color: #dc2626;
+  }
+
+  .error .message-text {
+    color: #991b1b;
+  }
+</style>
+
+<script>
+  import { StorageService } from '../lib/storage-service';
+
+  class ImageUploader {
+    private uploadArea: HTMLElement;
+    private fileInput: HTMLInputElement;
+    private uploadBtn: HTMLButtonElement;
+    private progressBar: HTMLElement;
+    private progressFill: HTMLElement;
+    private previewContainer: HTMLElement;
+    private previewImage: HTMLImageElement;
+    private messageContainer: HTMLElement;
+    private selectedFile: File | null = null;
+    private folder: string;
+
+    constructor() {
+      this.uploadArea = document.getElementById('upload-area') as HTMLElement;
+      this.fileInput = document.getElementById('file-input') as HTMLInputElement;
+      this.uploadBtn = document.getElementById('upload-btn') as HTMLButtonElement;
+      this.progressBar = document.getElementById('upload-progress') as HTMLElement;
+      this.progressFill = document.getElementById('progress-fill') as HTMLElement;
+      this.previewContainer = document.getElementById('upload-preview') as HTMLElement;
+      this.previewImage = document.getElementById('preview-image') as HTMLImageElement;
+      this.messageContainer = document.getElementById('upload-message') as HTMLElement;
+      
+      // Obtener la carpeta del data attribute
+      const uploaderElement = document.querySelector('.image-uploader') as HTMLElement;
+      this.folder = uploaderElement?.dataset.folder || 'logos-propuestas';
+
+      this.initializeEventListeners();
+    }
+
+    private initializeEventListeners(): void {
+      // Click en el área de upload
+      this.uploadArea.addEventListener('click', () => {
+        this.fileInput.click();
+      });
+
+      // Drag and drop
+      this.uploadArea.addEventListener('dragover', this.handleDragOver.bind(this));
+      this.uploadArea.addEventListener('dragleave', this.handleDragLeave.bind(this));
+      this.uploadArea.addEventListener('drop', this.handleDrop.bind(this));
+
+      // Selección de archivo
+      this.fileInput.addEventListener('change', this.handleFileSelect.bind(this));
+
+      // Botón de upload
+      this.uploadBtn.addEventListener('click', this.handleUpload.bind(this));
+
+      // Botón de eliminar preview
+      const removeBtn = document.getElementById('remove-image');
+      if (removeBtn) {
+        removeBtn.addEventListener('click', this.removePreview.bind(this));
+      }
+    }
+
+    private handleDragOver(e: DragEvent): void {
+      e.preventDefault();
+      this.uploadArea.classList.add('dragover');
+    }
+
+    private handleDragLeave(e: DragEvent): void {
+      e.preventDefault();
+      this.uploadArea.classList.remove('dragover');
+    }
+
+    private handleDrop(e: DragEvent): void {
+      e.preventDefault();
+      this.uploadArea.classList.remove('dragover');
+      
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0) {
+        this.processFile(files[0]);
+      }
+    }
+
+    private handleFileSelect(e: Event): void {
+      const target = e.target as HTMLInputElement;
+      if (target.files && target.files.length > 0) {
+        this.processFile(target.files[0]);
+      }
+    }
+
+    private processFile(file: File): void {
+      // Validar el archivo
+      if (!StorageService.isValidImage(file)) {
+        this.showMessage('El archivo seleccionado no es válido. Debe ser una imagen de máximo 5MB.', 'error');
+        return;
+      }
+
+      this.selectedFile = file;
+      this.showPreview(file);
+      this.uploadBtn.disabled = false;
+    }
+
+    private showPreview(file: File): void {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.previewImage.src = e.target?.result as string;
+        this.previewContainer.style.display = 'block';
+        
+        // Mostrar información del archivo
+        const fileNameEl = document.getElementById('file-name');
+        const fileSizeEl = document.getElementById('file-size');
+        
+        if (fileNameEl) fileNameEl.textContent = file.name;
+        if (fileSizeEl) fileSizeEl.textContent = this.formatFileSize(file.size);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    private removePreview(): void {
+      this.selectedFile = null;
+      this.previewContainer.style.display = 'none';
+      this.uploadBtn.disabled = true;
+      this.fileInput.value = '';
+    }
+
+    private async handleUpload(): Promise<void> {
+      if (!this.selectedFile) return;
+
+      try {
+        this.showProgress();
+        this.uploadBtn.disabled = true;
+
+        // Simular progreso
+        this.simulateProgress();
+
+        // Subir la imagen
+        const result = await StorageService.uploadImage(this.selectedFile, undefined, this.folder);
+
+        if (result.success) {
+          this.showMessage('✅ Imagen subida exitosamente!', 'success');
+          
+          // Llamar a la función de éxito si existe
+          const successFn = window[this.getUploadSuccessFunctionName() as keyof Window] as Function;
+          if (typeof successFn === 'function') {
+            successFn(result.url, result.path);
+          }
+          
+          // Limpiar después de un delay
+          setTimeout(() => {
+            this.removePreview();
+            this.hideMessage();
+          }, 3000);
+        } else {
+          throw new Error(result.error);
+        }
+
+      } catch (error) {
+        this.showMessage(`❌ Error: ${error instanceof Error ? error.message : String(error)}`, 'error');
+        
+        // Llamar a la función de error si existe
+        const errorFn = window[this.getUploadErrorFunctionName() as keyof Window] as Function;
+        if (typeof errorFn === 'function') {
+          errorFn(error instanceof Error ? error.message : String(error));
+        }
+      } finally {
+        this.hideProgress();
+        this.uploadBtn.disabled = false;
+      }
+    }
+
+    private showProgress(): void {
+      this.progressBar.style.display = 'block';
+    }
+
+    private hideProgress(): void {
+      this.progressBar.style.display = 'none';
+      this.progressFill.style.width = '0%';
+    }
+
+    private simulateProgress(): void {
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) {
+          progress = 90;
+          clearInterval(interval);
+        }
+        this.progressFill.style.width = `${progress}%`;
+      }, 200);
+    }
+
+    private showMessage(text: string, type: 'success' | 'error'): void {
+      const messageIcon = document.getElementById('message-icon');
+      const messageText = document.getElementById('message-text');
+      
+      if (messageIcon) messageIcon.textContent = type === 'success' ? '✅' : '❌';
+      if (messageText) messageText.textContent = text;
+      
+      this.messageContainer.className = `upload-message ${type}`;
+      this.messageContainer.style.display = 'block';
+    }
+
+    private hideMessage(): void {
+      this.messageContainer.style.display = 'none';
+    }
+
+    private formatFileSize(bytes: number): string {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    private getUploadSuccessFunctionName(): string {
+      const uploaderElement = document.querySelector('.image-uploader') as HTMLElement;
+      return uploaderElement?.dataset.onUploadSuccess || 'onUploadSuccess';
+    }
+
+    private getUploadErrorFunctionName(): string {
+      const uploaderElement = document.querySelector('.image-uploader') as HTMLElement;
+      return uploaderElement?.dataset.onUploadError || 'onUploadError';
+    }
+  }
+
+  // Inicializar cuando el DOM esté listo
+  document.addEventListener('DOMContentLoaded', () => {
+    new ImageUploader();
+  });
+
+  // Exponer funciones globales para callbacks
+  declare global {
+    interface Window {
+      onUploadSuccess?: (url: string, path: string) => void;
+      onUploadError?: (error: string) => void;
+    }
+  }
+</script>

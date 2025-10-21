@@ -33,7 +33,7 @@ import "../styles/proposal-page.css";
             <nav>
                 <div class="brand-logo">
                     <a href="#home">
-                        <img src="Cloud Pixels.png" alt="Logo Cloud Pixels">
+                        <img src="Cloud Pixels-3.png" alt="Logo Cloud Pixels">
                     </a>
                 </div>
                 <ul>
@@ -173,15 +173,22 @@ import "../styles/proposal-page.css";
         </footer>
     </div>
 
-    <script>
-        // Función para obtener parámetros de URL
-        function getUrlParameter(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
+            <script>
+            // Extender la interfaz Window para incluir PropuestasService
+            declare global {
+                interface Window {
+                    PropuestasService: any;
+                }
+            }
+            
+            // Función para obtener parámetros de URL
+            function getUrlParameter(name: string): string | null {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
 
         // Función para cargar datos de la propuesta
-        async function loadProposal(code) {
+        async function loadProposal(code: string) {
             try {
                 // Verificar que el servicio esté disponible
                 if (!window.PropuestasService) {
